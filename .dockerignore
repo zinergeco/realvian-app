@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+.next
+**/.next
+.turbo
+**/.turbo
+.git
+.gitignore
+*.md
+!BUILD_SPEC.md
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store
+coverage
