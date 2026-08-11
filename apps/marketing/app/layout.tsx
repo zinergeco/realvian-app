@@ -35,6 +35,7 @@ export const metadata: Metadata = {
     description: "Score any UK postcode across 24 data dimensions.",
   },
   robots: { index: true, follow: true },
+  icons: { icon: "/favicon.svg" },
 };
 
 export const viewport: Viewport = {

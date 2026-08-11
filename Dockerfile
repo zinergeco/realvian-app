@@ -21,9 +21,10 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@10.34.4 --activate
 
-# Pull in installed modules from deps stage
+# Pull in installed modules from deps stage (all workspace packages)
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/marketing/node_modules ./apps/marketing/node_modules
+COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 
 # Copy the rest of the source
 COPY . .
@@ -31,7 +32,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN pnpm run build
+RUN pnpm --filter @realvian/marketing run build
 
 # ── Stage 3: Minimal production runner ─────────────────────────
 FROM node:20-alpine AS runner
