@@ -5,8 +5,8 @@ const COLUMNS = [
   {
     title: "Platform",
     links: [
-      { label: "Area intelligence", href: "/platform" },
-      { label: "Compare areas", href: "/cities/compare" },
+      { label: "Area intelligence", href: "/areas" },
+      { label: "Compare areas", href: "/compare" },
       { label: "Calculators", href: "/tools" },
       { label: "Marketplace", href: "/marketplace" },
     ],

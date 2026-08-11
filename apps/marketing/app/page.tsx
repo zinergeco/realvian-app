@@ -368,7 +368,7 @@ export default function HomePage() {
                   Create free account
                 </Button>
               </Link>
-              <Link href="/cities/compare">
+              <Link href="/compare">
                 <Button size="lg" variant="secondary">
                   Compare two areas
                 </Button>

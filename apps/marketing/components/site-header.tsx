@@ -7,10 +7,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { Button, cx } from "./ui";
 
 const NAV = [
-  { label: "Platform", href: "/platform" },
+  { label: "Areas", href: "/areas" },
+  { label: "Compare", href: "/compare" },
   { label: "Portals", href: "/portals" },
   { label: "Tools", href: "/tools" },
-  { label: "Areas", href: "/cities" },
   { label: "Pricing", href: "/pricing" },
 ];
 

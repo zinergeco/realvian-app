@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getAllAreas } from "@/lib/areas";
 import { Button, cx } from "./ui";
 
 /**
@@ -9,40 +11,32 @@ import { Button, cx } from "./ui";
  * calculator. Accepts a postcode, an outcode, a city, or a district name.
  */
 
-interface Suggestion {
-  code: string;
-  name: string;
-  city: string;
-  score: number;
-}
-
-const SUGGESTIONS: Suggestion[] = [
-  { code: "M20", name: "Didsbury", city: "Manchester", score: 87 },
-  { code: "M21", name: "Chorlton", city: "Manchester", score: 84 },
-  { code: "LS6", name: "Headingley", city: "Leeds", score: 79 },
-  { code: "BS8", name: "Clifton", city: "Bristol", score: 91 },
-  { code: "B15", name: "Edgbaston", city: "Birmingham", score: 83 },
-  { code: "SW11", name: "Battersea", city: "London", score: 88 },
-  { code: "EH3", name: "New Town", city: "Edinburgh", score: 92 },
-  { code: "NE2", name: "Jesmond", city: "Newcastle", score: 81 },
-];
-
 export function PostcodeSearch() {
+  const router = useRouter();
+  const areas = useMemo(() => getAllAreas(), []);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim()
-    ? SUGGESTIONS.filter((s) => {
-        const q = query.toLowerCase();
-        return (
-          s.code.toLowerCase().includes(q) ||
-          s.name.toLowerCase().includes(q) ||
-          s.city.toLowerCase().includes(q)
-        );
-      }).slice(0, 5)
-    : SUGGESTIONS.slice(0, 5);
+  const filtered = useMemo(() => {
+    const pool = query.trim()
+      ? areas.filter((a) => {
+          const q = query.toLowerCase();
+          return (
+            a.outcode.toLowerCase().includes(q) ||
+            a.district.toLowerCase().includes(q) ||
+            a.city.toLowerCase().includes(q)
+          );
+        })
+      : [...areas].sort((x, y) => y.realvianScore - x.realvianScore);
+    return pool.slice(0, 5);
+  }, [areas, query]);
+
+  const go = (slug: string) => {
+    setOpen(false);
+    router.push(`/areas/${slug}`);
+  };
 
   // Close on outside click
   useEffect(() => {
@@ -67,8 +61,7 @@ export function PostcodeSearch() {
       const pick = filtered[active];
       if (pick) {
         e.preventDefault();
-        setQuery(`${pick.code} · ${pick.name}`);
-        setOpen(false);
+        go(pick.slug);
       }
     } else if (e.key === "Escape") {
       setOpen(false);
@@ -122,7 +115,15 @@ export function PostcodeSearch() {
                        focus:shadow-[var(--shadow-md)]"
           />
         </div>
-        <Button size="lg" variant="primary" className="shrink-0">
+        <Button
+          size="lg"
+          variant="primary"
+          className="shrink-0"
+          onClick={() => {
+            const pick = filtered[0];
+            if (pick) go(pick.slug);
+          }}
+        >
           Search
         </Button>
       </div>
@@ -145,14 +146,11 @@ export function PostcodeSearch() {
 
           {filtered.map((s, i) => (
             <button
-              key={s.code}
+              key={s.outcode}
               role="option"
               aria-selected={i === active}
               onMouseEnter={() => setActive(i)}
-              onClick={() => {
-                setQuery(`${s.code} · ${s.name}`);
-                setOpen(false);
-              }}
+              onClick={() => go(s.slug)}
               className={cx(
                 "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
                 i === active ? "bg-[var(--surface-hover)]" : "bg-transparent",
@@ -162,11 +160,11 @@ export function PostcodeSearch() {
                 className="tnum text-[13px] font-semibold w-11 shrink-0"
                 style={{ color: "var(--primary)" }}
               >
-                {s.code}
+                {s.outcode}
               </span>
               <span className="flex-1 min-w-0">
                 <span className="block text-[14px] text-[var(--text-primary)] truncate">
-                  {s.name}
+                  {s.district}
                 </span>
                 <span className="block text-[12px] text-[var(--text-muted)]">
                   {s.city}
@@ -174,7 +172,7 @@ export function PostcodeSearch() {
               </span>
               <span className="flex items-center gap-1.5 shrink-0">
                 <span className="tnum text-[13px] font-semibold text-[var(--text-primary)]">
-                  {s.score}
+                  {s.realvianScore}
                 </span>
                 <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
                   score
