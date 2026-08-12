@@ -8,6 +8,7 @@ const COLUMNS = [
       { label: "Area intelligence", href: "/areas" },
       { label: "Compare areas", href: "/compare" },
       { label: "Calculators", href: "/tools" },
+      { label: "Market reports", href: "/blog" },
       { label: "Marketplace", href: "/marketplace" },
     ],
   },

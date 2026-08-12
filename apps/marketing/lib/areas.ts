@@ -1038,7 +1038,7 @@ export const AREAS: Area[] = [
     lastRefreshedAt: "2026-08-01",
   },
   {
-    slug: "withington-m20-alt",
+    slug: "levenshulme-m19",
     outcode: "M19",
     district: "Levenshulme",
     city: "Manchester",

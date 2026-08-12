@@ -2,6 +2,16 @@ import Link from "next/link";
 import { IntelligencePanel } from "@/components/intelligence-panel";
 import { PostcodeSearch } from "@/components/postcode-search";
 import { Badge, Button, Card, SectionLabel } from "@/components/ui";
+import {
+  AppMockup,
+  CitySkyline,
+  IlloAlerts,
+  IlloCompare,
+  IlloDataFusion,
+  IlloMap,
+  IlloPortfolio,
+  IlloScore,
+} from "@/components/illustrations";
 
 /* ── Content ──────────────────────────────────────── */
 
@@ -34,31 +44,37 @@ const PORTALS = [
 
 const CAPABILITIES = [
   {
+    illo: "compare" as const,
     title: "Area comparison engine",
     desc: "Put any two UK postcodes side by side across 24 dimensions — schools, crime, transport, price growth, yield, flood risk, demographics.",
     tag: "Core",
   },
   {
+    illo: "score" as const,
     title: "Realvian Score",
     desc: "One proprietary composite number for liveability, and a second for investment potential. Citable, explainable, and consistent nationwide.",
     tag: "Proprietary",
   },
   {
+    illo: "portfolio" as const,
     title: "Yield & ROI modelling",
     desc: "Gross, net, and IRR with editable assumptions. Stress-test against rate changes and void periods before you commit.",
     tag: "Core",
   },
   {
+    illo: "map" as const,
     title: "Planning pulse",
     desc: "Every planning application near a property you care about, aggregated and alerted the week it lands.",
     tag: "Premium",
   },
   {
+    illo: "fusion" as const,
     title: "Climate & resilience lens",
     desc: "Flood risk, air quality, and heat projections — the risks a mortgage survey will not tell you about.",
     tag: "Premium",
   },
   {
+    illo: "alerts" as const,
     title: "Smart alerts",
     desc: "Price drops, new matching listings, crime-trend shifts, and planning activity — delivered when they happen, not monthly.",
     tag: "Core",
@@ -76,6 +92,16 @@ const DATA_SOURCES = [
   "PlanIt",
 ];
 
+/* ── Illustration mapper ──────────────────────────── */
+const ILLOS = {
+  compare: IlloCompare,
+  score: IlloScore,
+  portfolio: IlloPortfolio,
+  map: IlloMap,
+  fusion: IlloDataFusion,
+  alerts: IlloAlerts,
+} as const;
+
 /* ── Page ─────────────────────────────────────────── */
 
 export default function HomePage() {
@@ -86,8 +112,15 @@ export default function HomePage() {
         {/* Ambient layers */}
         <div className="absolute inset-0 grid-bg opacity-70" aria-hidden="true" />
         <div className="absolute inset-0 glow-emerald" aria-hidden="true" />
+        <div
+          className="absolute bottom-0 inset-x-0 pointer-events-none opacity-45 -z-0"
+          style={{ height: 150, maskImage: "linear-gradient(to top, black 55%, transparent 100%)", WebkitMaskImage: "linear-gradient(to top, black 55%, transparent 100%)" }}
+          aria-hidden="true"
+        >
+          <CitySkyline className="w-full h-full" variant="highrise" />
+        </div>
 
-        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-[116px] pb-16 lg:pt-[140px] lg:pb-24">
+        <div className="relative z-10 mx-auto max-w-[1240px] px-5 sm:px-8 pt-[116px] pb-20 lg:pt-[140px] lg:pb-28">
           <div className="grid lg:grid-cols-[1.08fr_1fr] gap-12 lg:gap-14 items-center">
             {/* ── Left: the thesis ── */}
             <div>
@@ -275,6 +308,63 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ══════════════ PRODUCT SHOWCASE ══════════════ */}
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pb-24 lg:pb-32">
+        <div className="grid lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-16 items-center">
+          <div>
+            <SectionLabel>The workspace</SectionLabel>
+            <h2
+              className="text-[var(--text-primary)]"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(30px, 4vw, 46px)",
+                lineHeight: 1.06,
+                letterSpacing: "-0.03em",
+                fontWeight: 300,
+              }}
+            >
+              Not a chat box.
+              <br />
+              A dashboard.
+            </h2>
+            <p className="mt-5 text-[16px] leading-relaxed text-[var(--text-secondary)] max-w-[460px]">
+              Every score decomposes into the six dimensions behind it, mapped
+              geographically and tracked over time. You can see exactly why an
+              area scores what it scores — and challenge it.
+            </p>
+            <ul className="mt-7 space-y-3">
+              {[
+                "Every score traceable to its inputs",
+                "Live map overlays for crime, schools and planning",
+                "Side-by-side comparison across 24 dimensions",
+              ].map((t) => (
+                <li
+                  key={t}
+                  className="flex gap-3 text-[14.5px] text-[var(--text-secondary)]"
+                >
+                  <span aria-hidden="true" style={{ color: "var(--primary)" }}>
+                    ✓
+                  </span>
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="relative">
+            <div
+              className="absolute -inset-6 -z-10 rounded-full blur-3xl opacity-50"
+              style={{
+                background:
+                  "radial-gradient(circle, var(--primary-subtle) 0%, transparent 70%)",
+              }}
+              aria-hidden="true"
+            />
+            <AppMockup className="w-full h-auto drop-shadow-2xl" />
+          </div>
+        </div>
+      </section>
+
       {/* ══════════════ CAPABILITIES ══════════════ */}
       <section className="border-y border-[var(--border)] bg-[var(--bg-subtle)]">
         <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-24 lg:py-32">
@@ -302,8 +392,20 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {CAPABILITIES.map((c) => (
-              <Card key={c.title} hover className="p-6 h-full">
+            {CAPABILITIES.map((c) => {
+              const Illo = ILLOS[c.illo];
+              return (
+              <Card key={c.title} hover className="h-full overflow-hidden flex flex-col">
+                {/* Illustration */}
+                <div className="relative h-[132px] bg-[var(--bg)] border-b border-[var(--border)] overflow-hidden shrink-0">
+                  <div className="absolute inset-0 grid-bg opacity-40" aria-hidden="true" />
+                  <div className="absolute inset-0 grid place-items-center p-3">
+                    <div className="w-full max-w-[200px]">
+                      <Illo className="w-full h-auto" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 flex-1">
                 <Badge
                   tone={
                     c.tag === "Premium"
@@ -322,8 +424,10 @@ export default function HomePage() {
                 <p className="text-[14px] leading-relaxed text-[var(--text-secondary)]">
                   {c.desc}
                 </p>
+                </div>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

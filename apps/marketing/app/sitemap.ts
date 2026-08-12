@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllAreas } from "@/lib/areas";
+import { getAllPosts } from "@/lib/blog";
 
 const BASE = "https://realvian.co.uk";
 
@@ -10,7 +11,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: BASE, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/areas`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
   ];
+
+  const postPages: MetadataRoute.Sitemap = getAllPosts().map((p) => ({
+    url: `${BASE}/blog/${p.slug}`,
+    lastModified: new Date(p.dataDate),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
 
   // One entry per area — the programmatic SEO surface
   const areaPages: MetadataRoute.Sitemap = getAllAreas().map((a) => ({
@@ -20,5 +29,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...areaPages];
+  return [...staticPages, ...areaPages, ...postPages];
 }

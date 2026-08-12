@@ -8,7 +8,9 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ingest": "tsx src/ingest.ts",
+    "test:scoring": "tsx src/scoring.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.38.3",
@@ -16,6 +18,8 @@
   },
   "devDependencies": {
     "drizzle-kit": "^0.30.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "@types/node": "^22.10.2"
   }
 }
