@@ -10,6 +10,12 @@ import { getAreaBySlug } from "@/lib/areas";
 import { AreaCard, DataNote } from "@/components/area-viz";
 import { Badge, Card, SectionLabel } from "@/components/ui";
 import { CitySkyline, IlloPipeline } from "@/components/illustrations";
+import { AffiliateOffer } from "@/components/commercial";
+import {
+  loadActiveProducts,
+  selectProductsForPost,
+} from "@/lib/monetisation";
+import { getAllAreas } from "@/lib/areas";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -52,6 +58,15 @@ export default async function BlogPostPage({
   const related = post.relatedSlugs
     .map((s) => getPostBySlug(s))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
+
+  // Contextually matched offers. selectProductsForPost scores each product
+  // against the post's extracted topics and geography — products scoring
+  // zero are not shown at all rather than filling the slot with noise.
+  const allProducts = await loadActiveProducts();
+  const matched = selectProductsForPost(allProducts, post, getAllAreas(), 2);
+  const midOffer = matched[0]?.product ?? null;
+  const footOffer = matched[1]?.product ?? null;
+  const postPath = `/blog/${post.slug}`;
 
   const referencedAreas = post.areaSlugs
     .slice(0, 3)
@@ -158,7 +173,17 @@ export default async function BlogPostPage({
       {/* ══════════ BODY ══════════ */}
       <article className="mx-auto max-w-[820px] px-5 sm:px-8 py-14">
         {post.sections.map((section, si) => (
-          <section key={section.heading} className={si > 0 ? "mt-14" : ""}>
+          <div key={section.heading}>
+          {/* Mid-article placement: after section 2, where the reader has
+              engaged but before the long data tables. One item max. */}
+          {si === 2 && midOffer && (
+            <AffiliateOffer
+              product={midOffer}
+              variant="inline"
+              context={{ path: postPath, slot: "blog_mid", postSlug: post.slug }}
+            />
+          )}
+          <section className={si > 0 ? "mt-14" : ""}>
             <h2
               className="text-[var(--text-primary)] mb-4"
               style={{
@@ -243,7 +268,17 @@ export default async function BlogPostPage({
               </div>
             )}
           </section>
+          </div>
         ))}
+
+        {/* After-content placement */}
+        {footOffer && (
+          <AffiliateOffer
+            product={footOffer}
+            variant="inline"
+            context={{ path: postPath, slot: "blog_footer", postSlug: post.slug }}
+          />
+        )}
 
         {/* Methodology note with pipeline illustration */}
         <Card className="mt-16 p-7">

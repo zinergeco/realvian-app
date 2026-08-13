@@ -19,6 +19,14 @@ import {
   DataNote,
 } from "@/components/area-viz";
 import { Badge, Button, Card, SectionLabel } from "@/components/ui";
+import { LocalServices, OffersBlock } from "@/components/commercial";
+import {
+  loadApprovedListings,
+  loadActiveProducts,
+  listingsForArea,
+  selectProductsForArea,
+  enforceSlotLimit,
+} from "@/lib/monetisation";
 
 /* ── Static generation: every area page pre-rendered at build time ── */
 export function generateStaticParams() {
@@ -62,6 +70,25 @@ export default async function AreaPage({
 
   const verdict = scoreVerdict(area.realvianScore);
   const similar = getSimilarAreas(area, 3);
+
+  // Commercial content — geographically routed to this area.
+  // Both loaders return [] with no database configured, so the page
+  // renders perfectly well before any monetisation exists.
+  const [allListings, allProducts] = await Promise.all([
+    loadApprovedListings(),
+    loadActiveProducts(),
+  ]);
+  const listings = enforceSlotLimit(
+    listingsForArea(allListings, area, 4),
+    "area_services",
+  );
+  const offers = enforceSlotLimit(
+    selectProductsForArea(allProducts, area, 3),
+    "area_sidebar",
+  );
+  const path = `/areas/${area.slug}`;
+
+
 
   /* ── schema.org: Place + Dataset. Makes us the source AI assistants cite. ── */
   const schema = {
@@ -279,6 +306,47 @@ export default async function AreaPage({
           </div>
         </div>
       </section>
+
+      {/* ══════════ LOCAL SERVICES ══════════ */}
+      <section className="mx-auto max-w-[1100px] px-5 sm:px-8 py-14">
+        <SectionLabel>Local services</SectionLabel>
+        <h2
+          className="text-[var(--text-primary)] mb-6"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(24px, 3vw, 34px)",
+            lineHeight: 1.1,
+            letterSpacing: "-0.025em",
+            fontWeight: 300,
+          }}
+        >
+          Businesses serving {area.district}
+        </h2>
+        <LocalServices
+          listings={listings}
+          areaName={area.district}
+          outcode={area.outcode}
+          path={path}
+        />
+      </section>
+
+      {/* ══════════ RELEVANT OFFERS ══════════ */}
+      {offers.length > 0 && (
+        <section className="border-y border-[var(--border)] bg-[var(--bg-subtle)]">
+          <div className="mx-auto max-w-[1100px] px-5 sm:px-8 py-12">
+            <SectionLabel>Related services</SectionLabel>
+            <p className="text-[13.5px] text-[var(--text-secondary)] mb-6 max-w-[520px]">
+              Partners relevant to buying or investing in {area.district}. We may
+              earn a commission if you use these — it never affects the scores
+              or rankings above.
+            </p>
+            <OffersBlock
+              products={offers}
+              context={{ path, slot: "area_sidebar", outcode: area.outcode }}
+            />
+          </div>
+        </section>
+      )}
 
       {/* ══════════ SIMILAR AREAS ══════════ */}
       <section className="mx-auto max-w-[1100px] px-5 sm:px-8 py-16">
