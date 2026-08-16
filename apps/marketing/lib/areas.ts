@@ -104,6 +104,70 @@ function dims(
 /* ══════════════════════════════════════════════════════
    THE DATASET — 40 areas across a national spread
    ══════════════════════════════════════════════════════ */
+import { LIVE_OVERRIDES, LIVE_GENERATED_AT } from "./areas-live-data";
+
+/**
+ * Merges a real-data override onto a seed area, field by field.
+ *
+ * Deliberately partial: only fields the ingest actually populated are
+ * overwritten. A field the live pipeline hasn't fetched yet (schools,
+ * safety, affordability, price, rent, yield) stays on the seed value
+ * rather than being blanked out — an honest partial upgrade, not a
+ * silent regression from "plausible" to "missing".
+ */
+/**
+ * Cache of merged results, keyed by outcode.
+ *
+ * CRITICAL FOR CORRECTNESS, not just performance: several call sites
+ * (notably the blog engine's ranking-post builder) filter areas by
+ * object identity — e.g. `ranked.filter(a => pool.includes(a))` — on
+ * the reasonable assumption that "the same area" means "the same object
+ * reference" across different accessor calls. Without this cache,
+ * mergeLive() would allocate a fresh object every call, silently
+ * breaking every such comparison and producing empty result sets with
+ * no error until something downstream dereferences `undefined`.
+ */
+const mergeCache = new Map<string, Area>();
+
+function mergeLive(area: Area): Area {
+  const live = LIVE_OVERRIDES[area.outcode];
+  if (!live) return area;
+
+  const cached = mergeCache.get(area.outcode);
+  if (cached) return cached;
+
+  const dims = area.dimensions.map((d) => {
+    if (d.key === "amenities" && live.amenityScore !== null) {
+      return { ...d, value: live.amenityScore };
+    }
+    if (d.key === "green" && live.greenSpaceScore !== null) {
+      return { ...d, value: live.greenSpaceScore };
+    }
+    if (d.key === "transport" && live.transportScore !== null) {
+      return { ...d, value: live.transportScore };
+    }
+    return d;
+  });
+
+  const merged: Area = {
+    ...area,
+    lat: live.lat,
+    lng: live.lng,
+    // Below the scoring engine's own 0.60 publication threshold — keep
+    // showing the seed composite rather than a number that fails our
+    // own confidence bar. Individual dimension bars above still reflect
+    // real data even while the headline score is provisional.
+    realvianScore:
+      live.scoreConfidence >= 0.6 && live.realvianScore !== null
+        ? live.realvianScore
+        : area.realvianScore,
+    dimensions: dims,
+    lastRefreshedAt: live.lastRefreshedAt,
+  };
+  mergeCache.set(area.outcode, merged);
+  return merged;
+}
+
 export const AREAS: Area[] = [
   // ── MANCHESTER ──
   {
@@ -1093,15 +1157,47 @@ export const AREAS: Area[] = [
    ══════════════════════════════════════════════════════ */
 
 export function getAllAreas(): Area[] {
-  return AREAS;
+  return AREAS.map(mergeLive);
 }
 
 export function getAreaBySlug(slug: string): Area | undefined {
-  return AREAS.find((a) => a.slug === slug);
+  const found = AREAS.find((a) => a.slug === slug);
+  return found ? mergeLive(found) : undefined;
 }
 
 export function getAreasByCity(city: string): Area[] {
-  return AREAS.filter((a) => a.city.toLowerCase() === city.toLowerCase());
+  return AREAS.filter((a) => a.city.toLowerCase() === city.toLowerCase()).map(mergeLive);
+}
+
+/**
+ * Whether a specific area has real fetched DIMENSION data (amenities,
+ * green space or transport) — the specific claim the UI badge makes.
+ *
+ * Deliberately NOT the same as "an override exists". A geography-only
+ * override (real lat/lng, but amenity/green/transport still null) must
+ * return false here, or the badge would claim dimension-level accuracy
+ * for data that is still synthetic. See areas-live-data.ts for the
+ * current gap: Overpass is blocked from the server IP, so as of the
+ * last ingest only geography is real, not the three scored dimensions.
+ */
+export function isLiveData(outcode: string): boolean {
+  const live = LIVE_OVERRIDES[outcode];
+  if (!live) return false;
+  return (
+    live.amenityScore !== null ||
+    live.greenSpaceScore !== null ||
+    live.transportScore !== null
+  );
+}
+
+/** Whether real geographic coordinates exist for this area (weaker claim than isLiveData). */
+export function hasLiveGeography(outcode: string): boolean {
+  return Boolean(LIVE_OVERRIDES[outcode]);
+}
+
+/** When the live snapshot was last regenerated — null if never run. */
+export function liveDataGeneratedAt(): string | null {
+  return LIVE_GENERATED_AT;
 }
 
 export function getAllCities(): { city: string; region: string; count: number }[] {
@@ -1120,7 +1216,8 @@ export function getRankedAreas(
   direction: "asc" | "desc" = "desc",
   limit?: number,
 ): Area[] {
-  const sorted = [...AREAS].sort((a, b) =>
+  const merged = AREAS.map(mergeLive);
+  const sorted = [...merged].sort((a, b) =>
     direction === "desc" ? b[field] - a[field] : a[field] - b[field],
   );
   return limit ? sorted.slice(0, limit) : sorted;
@@ -1128,7 +1225,8 @@ export function getRankedAreas(
 
 /** Similar areas — same region, closest Realvian Score. Powers internal linking (SEO). */
 export function getSimilarAreas(area: Area, limit = 3): Area[] {
-  return AREAS.filter((a) => a.slug !== area.slug)
+  return AREAS.map(mergeLive)
+    .filter((a) => a.slug !== area.slug)
     .sort((a, b) => {
       const regionBonusA = a.region === area.region ? -20 : 0;
       const regionBonusB = b.region === area.region ? -20 : 0;

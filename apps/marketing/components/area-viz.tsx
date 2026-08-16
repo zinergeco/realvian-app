@@ -235,17 +235,54 @@ export function AreaCard({ area }: { area: Area }) {
    DATA FRESHNESS NOTE
    Legally required alongside any figure we publish.
    ══════════════════════════════════════════════════ */
-export function DataNote({ date }: { date: string }) {
+export function DataNote({
+  date,
+  isLive = false,
+  hasGeo = false,
+}: {
+  date: string;
+  /** True once real fetched dimension data (amenities/green/transport) exists for this area */
+  isLive?: boolean;
+  /** True once real coordinates exist, even if dimension scores are still synthetic */
+  hasGeo?: boolean;
+}) {
   const formatted = new Date(date).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
   return (
-    <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
-      Data updated {formatted}. Figures are indicative and derived from public
-      sources including HM Land Registry, ONS and Police.uk. Not financial advice —
-      verify independently before making a purchase decision.
-    </p>
+    <div className="space-y-1.5">
+      {isLive ? (
+        <p className="text-[11.5px] font-medium text-[var(--primary)] flex items-center gap-1.5">
+          <span
+            className="w-1.5 h-1.5 rounded-full bg-current"
+            aria-hidden="true"
+          />
+          Amenities, green space and transport are live-fetched data
+        </p>
+      ) : hasGeo ? (
+        <p className="text-[11.5px] font-medium text-[var(--color-gold-deep)] flex items-center gap-1.5">
+          <span
+            className="w-1.5 h-1.5 rounded-full bg-current"
+            aria-hidden="true"
+          />
+          Location is real ONS data — liveability scores are still illustrative
+        </p>
+      ) : (
+        <p className="text-[11.5px] font-medium text-[var(--color-gold-deep)] flex items-center gap-1.5">
+          <span
+            className="w-1.5 h-1.5 rounded-full bg-current"
+            aria-hidden="true"
+          />
+          Illustrative figures — not yet backed by live data for this area
+        </p>
+      )}
+      <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
+        Data updated {formatted}. Figures are indicative and derived from public
+        sources including HM Land Registry, ONS and Police.uk. Not financial advice —
+        verify independently before making a purchase decision.
+      </p>
+    </div>
   );
 }

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import {
   getAllAreas,
   getAreaBySlug,
+  isLiveData,
+  hasLiveGeography,
   getSimilarAreas,
   fmtPrice,
   fmtRent,
@@ -371,7 +373,7 @@ export default async function AreaPage({
         </div>
 
         <div className="mt-10 pt-8 border-t border-[var(--border)]">
-          <DataNote date={area.lastRefreshedAt} />
+          <DataNote date={area.lastRefreshedAt} isLive={isLiveData(area.outcode)} hasGeo={hasLiveGeography(area.outcode)} />
         </div>
       </section>
     </>
