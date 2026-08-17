@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/public-auth";
 import { IntelligencePanel } from "@/components/intelligence-panel";
 import { PostcodeSearch } from "@/components/postcode-search";
 import { Badge, Button, Card, SectionLabel } from "@/components/ui";
@@ -104,7 +105,8 @@ const ILLOS = {
 
 /* ── Page ─────────────────────────────────────────── */
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser();
   return (
     <>
       {/* ══════════════ HERO ══════════════ */}
@@ -467,9 +469,9 @@ export default function HomePage() {
               premium reports or off-market data.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/auth/signup">
+              <Link href={user ? "/account" : "/auth/signup"}>
                 <Button size="lg" variant="primary">
-                  Create free account
+                  {user ? "Go to my account" : "Create free account"}
                 </Button>
               </Link>
               <Link href="/compare">

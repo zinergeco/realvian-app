@@ -15,7 +15,11 @@ const NAV = [
   { label: "Pricing", href: "/pricing" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({
+  user,
+}: {
+  user: { name: string | null; email: string } | null;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -65,16 +69,26 @@ export function SiteHeader() {
 
             <div className="flex items-center gap-2.5">
               <ThemeToggle />
-              <Link href="/auth/login" className="hidden sm:block">
-                <Button variant="ghost" size="sm">
-                  Sign in
-                </Button>
-              </Link>
-              <Link href="/auth/signup" className="hidden sm:block">
-                <Button variant="primary" size="sm">
-                  Get started
-                </Button>
-              </Link>
+              {user ? (
+                <Link href="/account" className="hidden sm:block">
+                  <Button variant="primary" size="sm">
+                    {user.name ? user.name.split(" ")[0] : "My account"}
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="hidden sm:block">
+                    <Button variant="ghost" size="sm">
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link href="/auth/signup" className="hidden sm:block">
+                    <Button variant="primary" size="sm">
+                      Get started
+                    </Button>
+                  </Link>
+                </>
+              )}
 
               {/* Mobile menu trigger */}
               <button
@@ -152,16 +166,26 @@ export function SiteHeader() {
             </nav>
 
             <div className="grid gap-2.5 pt-4 border-t border-[var(--border)]">
-              <Link href="/auth/signup" onClick={() => setOpen(false)}>
-                <Button variant="primary" size="lg" className="w-full">
-                  Get started
-                </Button>
-              </Link>
-              <Link href="/auth/login" onClick={() => setOpen(false)}>
-                <Button variant="secondary" size="lg" className="w-full">
-                  Sign in
-                </Button>
-              </Link>
+              {user ? (
+                <Link href="/account" onClick={() => setOpen(false)}>
+                  <Button variant="primary" size="lg" className="w-full">
+                    My account
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/auth/signup" onClick={() => setOpen(false)}>
+                    <Button variant="primary" size="lg" className="w-full">
+                      Get started
+                    </Button>
+                  </Link>
+                  <Link href="/auth/login" onClick={() => setOpen(false)}>
+                    <Button variant="secondary" size="lg" className="w-full">
+                      Sign in
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

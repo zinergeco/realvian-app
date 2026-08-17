@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { ThemeProvider, themeScript, type Theme } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
+import { getCurrentUser } from "@/lib/public-auth";
 import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
@@ -57,6 +58,11 @@ export default async function RootLayout({
   const cookieTheme = cookieStore.get("realvian-theme")?.value;
   const theme: Theme = cookieTheme === "dark" ? "dark" : "light";
 
+  // Auth state resolved once here, server-side, and passed down — the
+  // header must never guess or default to "signed out" while a valid
+  // session cookie exists. Fails closed if the database is briefly down.
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="en-GB"
@@ -75,7 +81,7 @@ export default async function RootLayout({
       </head>
       <body>
         <ThemeProvider initialTheme={theme}>
-          <SiteHeader />
+          <SiteHeader user={user ? { name: user.name, email: user.email } : null} />
           <main>{children}</main>
           <SiteFooter />
         </ThemeProvider>
