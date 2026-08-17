@@ -9,7 +9,7 @@ const COLUMNS = [
       { label: "Compare areas", href: "/compare" },
       { label: "Calculators", href: "/tools" },
       { label: "Market reports", href: "/blog" },
-      { label: "Marketplace", href: "/marketplace" },
+      { label: "List your business", href: "/list-your-business" },
     ],
   },
   {
@@ -26,7 +26,6 @@ const COLUMNS = [
     links: [
       { label: "About", href: "/about" },
       { label: "Pricing", href: "/pricing" },
-      { label: "Careers", href: "/careers" },
       { label: "Contact", href: "/contact" },
     ],
   },
