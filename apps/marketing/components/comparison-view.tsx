@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   type Area,
@@ -9,6 +9,7 @@ import {
   fmtPct,
   fmtYield,
 } from "@/lib/areas";
+import { saveComparisonAction } from "@/lib/comparison-actions";
 import { ScoreRing, DataNote } from "./area-viz";
 import { Button, Card, cx } from "./ui";
 
@@ -243,14 +244,17 @@ export function ComparisonView({
   areas,
   initialA,
   initialB,
+  isLoggedIn,
 }: {
   areas: Area[];
   initialA?: Area;
   initialB?: Area;
+  isLoggedIn: boolean;
 }) {
   const [a, setA] = useState<Area | undefined>(initialA ?? areas[0]);
   const [b, setB] = useState<Area | undefined>(initialB ?? areas[10]);
   const [copied, setCopied] = useState(false);
+  const [saveState, saveAction, savePending] = useActionState(saveComparisonAction, {});
 
   const shareUrl =
     a && b ? `https://realvian.co.uk/compare?a=${a.slug}&b=${b.slug}` : "";
@@ -487,6 +491,23 @@ export function ComparisonView({
             <Button variant="secondary" onClick={copyLink}>
               {copied ? "Link copied" : "Copy shareable link"}
             </Button>
+            {isLoggedIn ? (
+              <form action={saveAction}>
+                <input type="hidden" name="areaA" value={a.slug} />
+                <input type="hidden" name="areaB" value={b.slug} />
+                <Button variant="secondary" type="submit" disabled={savePending}>
+                  {savePending
+                    ? "Saving…"
+                    : saveState?.ok
+                      ? "Saved ✓"
+                      : "Save this comparison"}
+                </Button>
+              </form>
+            ) : (
+              <Link href="/auth/signup">
+                <Button variant="secondary">Sign in to save</Button>
+              </Link>
+            )}
             <Link href={`/areas/${a.slug}`}>
               <Button variant="ghost">View {a.district} in full</Button>
             </Link>
@@ -494,6 +515,12 @@ export function ComparisonView({
               <Button variant="ghost">View {b.district} in full</Button>
             </Link>
           </div>
+
+          {saveState?.error && (
+            <p className="mt-3 text-[13.5px]" style={{ color: "var(--danger)" }}>
+              {saveState.error}
+            </p>
+          )}
 
           <div className="mt-8 pt-6 border-t border-[var(--border)]">
             <DataNote date={a.lastRefreshedAt} />

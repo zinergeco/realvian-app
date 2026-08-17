@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/public-auth";
 import { logoutAction } from "@/lib/public-auth-actions";
+import { deleteComparisonAction } from "@/lib/comparison-actions";
+import { listUserComparisons } from "@/lib/comparisons";
+import { getAreaBySlug } from "@/lib/areas";
 import { Badge, Card, SectionLabel, Button } from "@/components/ui";
-import Link from "next/link";
+import { ScoreRing } from "@/components/area-viz";
 
 export const metadata: Metadata = {
   title: "My account",
@@ -26,6 +30,21 @@ export default async function AccountPage() {
     month: "long",
     year: "numeric",
   });
+
+  const saved = await listUserComparisons(user.id);
+  // Resolve slugs to real area data now, once, server-side — the list
+  // component below stays a plain server render, no client fetch needed.
+  const savedWithAreas = saved
+    .map((c) => ({
+      ...c,
+      a: getAreaBySlug(c.areaSlugs[0]),
+      b: getAreaBySlug(c.areaSlugs[1]),
+    }))
+    // A slug could theoretically no longer resolve if the seed dataset
+    // ever changes — skip rather than crash on a stale saved row.
+    .filter((c): c is typeof c & { a: NonNullable<typeof c.a>; b: NonNullable<typeof c.b> } =>
+      Boolean(c.a && c.b),
+    );
 
   return (
     <div className="mx-auto max-w-[720px] px-5 sm:px-8 pt-[104px] pb-20 lg:pt-[128px]">
@@ -65,13 +84,76 @@ export default async function AccountPage() {
         </div>
       </Card>
 
+      {/* ══════════ SAVED COMPARISONS — now real ══════════ */}
+      <Card className="p-6 mb-6">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h2
+            className="text-[13px] font-semibold tracking-[0.06em] uppercase"
+            style={{ color: "var(--primary)" }}
+          >
+            Saved comparisons
+          </h2>
+          <Link href="/compare" className="text-[13px] font-medium" style={{ color: "var(--primary)" }}>
+            New comparison →
+          </Link>
+        </div>
+
+        {savedWithAreas.length === 0 ? (
+          <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed">
+            Nothing saved yet.{" "}
+            <Link href="/compare" style={{ color: "var(--primary)" }}>
+              Compare two areas
+            </Link>{" "}
+            and hit "Save this comparison" to keep it here.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {savedWithAreas.map((c) => (
+              <li
+                key={c.id}
+                className="flex items-center gap-4 p-3.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-subtle)]"
+              >
+                <div className="flex items-center gap-2 shrink-0">
+                  <ScoreRing score={c.a.realvianScore} size={40} />
+                  <span className="text-[11px] text-[var(--text-muted)]">vs</span>
+                  <ScoreRing score={c.b.realvianScore} size={40} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/compare?a=${c.a.slug}&b=${c.b.slug}`}
+                    className="text-[14.5px] font-medium text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors"
+                  >
+                    {c.a.district} vs {c.b.district}
+                  </Link>
+                  <p className="text-[12px] text-[var(--text-muted)] mt-0.5">
+                    {c.a.city} · {c.b.city} — saved{" "}
+                    {new Date(c.createdAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </p>
+                </div>
+                <form action={deleteComparisonAction}>
+                  <input type="hidden" name="id" value={c.id} />
+                  <button
+                    type="submit"
+                    className="text-[12.5px] text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors shrink-0"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
       <Card className="p-6 mb-6">
         <h2 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
           Coming to this account
         </h2>
         <ul className="space-y-3">
           {[
-            "Save comparisons and revisit them later",
             "Follow areas and get notified when their score changes",
             "A single place to track properties you're evaluating",
           ].map((t) => (
@@ -81,9 +163,6 @@ export default async function AccountPage() {
             </li>
           ))}
         </ul>
-        <p className="text-[12.5px] text-[var(--text-muted)] mt-4">
-          Your account works today — these features are next, not live yet.
-        </p>
       </Card>
 
       <div className="flex flex-wrap gap-3">

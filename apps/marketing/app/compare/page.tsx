@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllAreas, getAreaBySlug } from "@/lib/areas";
+import { getCurrentUser } from "@/lib/public-auth";
 import { ComparisonView } from "@/components/comparison-view";
 import { SectionLabel } from "@/components/ui";
 
@@ -18,6 +19,7 @@ export default async function ComparePage({
 }) {
   const { a, b } = await searchParams;
   const areas = getAllAreas();
+  const user = await getCurrentUser();
 
   // Shareable URLs: /compare?a=didsbury-m20&b=clifton-bs8
   const areaA = a ? getAreaBySlug(a) : undefined;
@@ -54,7 +56,7 @@ export default async function ComparePage({
         </div>
       </section>
 
-      <ComparisonView areas={areas} initialA={areaA} initialB={areaB} />
+      <ComparisonView areas={areas} initialA={areaA} initialB={areaB} isLoggedIn={Boolean(user)} />
 
       {/* Internal linking for SEO — pre-built comparison pairs */}
       <section className="border-t border-[var(--border)] bg-[var(--bg-subtle)]">
