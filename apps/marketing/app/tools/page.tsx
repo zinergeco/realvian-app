@@ -1,26 +1,44 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/coming-soon";
+import { SectionLabel } from "@/components/ui";
+import { Calculators } from "./calculators";
 
 export const metadata: Metadata = {
-  title: "Property Calculators",
+  title: "Property Calculators — Mortgage, Stamp Duty, Yield & ROI",
   description:
-    "Mortgage affordability, stamp duty, rental yield and ROI calculators. In development.",
+    "Free UK property calculators: mortgage affordability, Stamp Duty Land Tax, rental yield and cash-on-cash return.",
   alternates: { canonical: "/tools" },
 };
 
 export default function ToolsPage() {
   return (
-    <ComingSoon
-      eyebrow="Tools"
-      title="Calculators"
-      description="A set of calculators for the numbers that actually decide whether a property works — built on the same area data as the rest of the site, not generic UK-wide assumptions."
-      bullets={[
-        "Mortgage affordability, based on current rates",
-        "Stamp duty — including additional-property surcharge",
-        "Gross and net rental yield, using real area-level rent data once it's live",
-        "Return on investment, with editable assumptions you can stress-test",
-      ]}
-      eta="Not started — next up after the area data pipeline is fully live."
-    />
+    <>
+      <section className="relative overflow-hidden border-b border-[var(--border)]">
+        <div className="absolute inset-0 grid-bg opacity-50" aria-hidden="true" />
+        <div className="absolute inset-0 glow-emerald" aria-hidden="true" />
+        <div className="relative z-10 mx-auto max-w-[1100px] px-5 sm:px-8 pt-[104px] pb-16 lg:pt-[128px]">
+          <SectionLabel>Tools</SectionLabel>
+          <h1
+            className="text-[var(--text-primary)] mb-5"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(32px, 4.6vw, 50px)",
+              lineHeight: 1.04,
+              letterSpacing: "-0.03em",
+              fontWeight: 300,
+            }}
+          >
+            Calculators
+          </h1>
+          <p className="text-[16px] leading-[1.65] text-[var(--text-secondary)] max-w-[600px]">
+            The numbers that actually decide whether a property works. Free,
+            instant, no account required — figures update as you type.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1100px] px-5 sm:px-8 py-14">
+        <Calculators />
+      </section>
+    </>
   );
 }
