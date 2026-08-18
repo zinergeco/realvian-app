@@ -6,7 +6,7 @@ import { IlloPortfolio, IlloAlerts, IlloMap, IlloDataFusion } from "@/components
 export const metadata: Metadata = {
   title: "Portals for Landlords, Investors, Agents & Developers",
   description:
-    "Dedicated workspaces for the four roles that use property data differently. In development — see what each portal will include.",
+    "Dedicated workspaces for landlords, investors, agents and developers. The landlord compliance tracker is live — see what's coming for the rest.",
   alternates: { canonical: "/portals" },
 };
 
@@ -14,26 +14,30 @@ const PORTALS = [
   {
     type: "landlord",
     name: "Landlords",
-    desc: "Compliance deadlines, EPC modelling, rent reviews and portfolio yield in one place.",
+    desc: "Track EPC, gas safety and EICR compliance deadlines across your portfolio.",
     illo: IlloPortfolio,
+    live: true,
   },
   {
     type: "investor",
     name: "Investors",
     desc: "Off-market deal flow, yield forecasts, and hot-spot maps built on demand signals.",
     illo: IlloMap,
+    live: false,
   },
   {
     type: "agent",
     name: "Agents",
     desc: "Qualified local leads, white-label area reports, and comparable market analysis.",
     illo: IlloDataFusion,
+    live: false,
   },
   {
     type: "developer",
     name: "Developers",
     desc: "Site feasibility, planning application radar, and absorption-rate analysis.",
     illo: IlloAlerts,
+    live: false,
   },
 ];
 
@@ -45,9 +49,6 @@ export default function PortalsHubPage() {
         <div className="absolute inset-0 glow-emerald" aria-hidden="true" />
         <div className="relative z-10 mx-auto max-w-[1100px] px-5 sm:px-8 pt-[104px] pb-16 lg:pt-[128px]">
           <SectionLabel>Portals</SectionLabel>
-          <div className="mb-5">
-            <Badge tone="accent">In development</Badge>
-          </div>
           <h1
             className="text-[var(--text-primary)] max-w-[680px]"
             style={{
@@ -67,8 +68,10 @@ export default function PortalsHubPage() {
           <p className="mt-5 max-w-[560px] text-[16px] leading-[1.65] text-[var(--text-secondary)]">
             Landlords, investors, agents and developers all read the same
             underlying data, but need to act on it differently. Each portal
-            below is a dedicated workspace for one role — none are live yet.
-            The area intelligence, comparison tool and reports that feed them
+            below is a dedicated workspace for one role. The landlord
+            compliance tracker is live today — the other three are still
+            being built. The area intelligence, comparison tool and reports
+            that feed them
             already are.
           </p>
         </div>
@@ -88,6 +91,11 @@ export default function PortalsHubPage() {
                   </div>
                 </div>
                 <div className="p-6 flex-1">
+                  <div className="mb-2">
+                    <Badge tone={p.live ? "primary" : "neutral"}>
+                      {p.live ? "Live" : "In development"}
+                    </Badge>
+                  </div>
                   <h3
                     className="text-[20px] text-[var(--text-primary)] mb-2"
                     style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}

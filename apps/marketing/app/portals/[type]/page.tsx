@@ -6,17 +6,11 @@ const PORTALS: Record<
   string,
   { name: string; description: string; bullets: string[] }
 > = {
-  landlord: {
-    name: "Landlord portal",
-    description:
-      "A single dashboard for everything a landlord needs to track across a portfolio — compliance dates, EPC ratings, rent reviews, and how each property is actually performing against the area.",
-    bullets: [
-      "Compliance calendar — gas safety, EICR, EPC renewal dates in one place",
-      "EPC modelling — what an upgrade would cost and what it would change",
-      "Rent review suggestions benchmarked against live area data",
-      "Portfolio-level yield and void tracking across every property",
-    ],
-  },
+  // "landlord" deliberately not listed here — it has its own real page at
+  // app/portals/landlord/page.tsx (a static route, which Next.js resolves
+  // ahead of this dynamic [type] segment for the exact same path). Keeping
+  // a second, unreachable "landlord" entry here would just be confusing
+  // dead content generating a phantom static path.
   investor: {
     name: "Investor portal",
     description:
