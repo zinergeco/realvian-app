@@ -190,7 +190,13 @@ export async function loadOverrides(): Promise<Map<string, ContentOverride>> {
         title: r.title,
         description: r.description,
         excerpt: r.excerpt,
-        sections: r.sections,
+        // r.sections is jsonb — confirmed via direct reproduction that this
+        // driver returns jsonb columns as raw JSON text, not auto-parsed.
+        // See lib/comparisons.ts for the original diagnosis of this pattern.
+        sections:
+          typeof r.sections === "string"
+            ? (JSON.parse(r.sections) as Record<string, string[]>)
+            : r.sections,
         heroMedia:
           r.media_id && r.storage_key
             ? {
@@ -243,11 +249,14 @@ export async function getSetting<T>(key: string, fallback: T): Promise<T> {
   try {
     const { default: postgres } = await import("postgres");
     const sql = postgres(url, { max: 1, connect_timeout: 8 });
-    const rows = await sql<{ value: T }[]>`
+    const rows = await sql<{ value: unknown }[]>`
       SELECT value FROM site_settings WHERE key = ${key}
     `;
     await sql.end();
-    return rows[0]?.value ?? fallback;
+    const raw = rows[0]?.value;
+    if (raw === undefined) return fallback;
+    // Same jsonb-as-string driver behavior as elsewhere in this file.
+    return (typeof raw === "string" ? (JSON.parse(raw) as T) : (raw as T));
   } catch {
     return fallback;
   }

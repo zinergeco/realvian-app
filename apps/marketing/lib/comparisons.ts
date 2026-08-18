@@ -57,18 +57,36 @@ export async function listUserComparisons(userId: string): Promise<SavedComparis
   try {
     const sql = await db();
     try {
-      const rows = await sql<{ id: string; area_slugs: string[]; created_at: Date }[]>`
+      const rows = await sql<{ id: string; area_slugs: unknown; created_at: Date }[]>`
         SELECT id, area_slugs, created_at FROM comparisons
         WHERE user_id = ${userId}::uuid
         ORDER BY created_at DESC
         LIMIT 50
       `;
       return rows
-        .filter((r) => Array.isArray(r.area_slugs) && r.area_slugs.length === 2)
+        .map((r) => {
+          // The postgres.js driver returns jsonb columns as raw JSON text in
+          // this configuration, not an auto-parsed value — confirmed by
+          // direct reproduction against the live database, not assumed.
+          // Parse defensively so this keeps working even if that ever changes.
+          let slugs: unknown = r.area_slugs;
+          if (typeof slugs === "string") {
+            try {
+              slugs = JSON.parse(slugs);
+            } catch {
+              slugs = null;
+            }
+          }
+          return { id: r.id, slugs, createdAt: r.created_at };
+        })
+        .filter(
+          (r): r is { id: string; slugs: [string, string]; createdAt: Date } =>
+            Array.isArray(r.slugs) && r.slugs.length === 2,
+        )
         .map((r) => ({
           id: r.id,
-          areaSlugs: [r.area_slugs[0]!, r.area_slugs[1]!],
-          createdAt: r.created_at.toISOString(),
+          areaSlugs: r.slugs,
+          createdAt: r.createdAt.toISOString(),
         }));
     } finally {
       await sql.end();
