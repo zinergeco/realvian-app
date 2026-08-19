@@ -1,0 +1,65 @@
+name: CI
+
+# Runs on every push and pull request against main. This formalises the
+# check that's been done manually before every deploy this project has
+# had so far — a broken build should be caught here, in a few minutes,
+# not discovered after Coolify has already deployed it to production.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel an in-progress run for the same branch if a new commit lands —
+# no point finishing a check on code that's already been superseded.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Fails fast — typecheck alone catches most real mistakes in under
+      # 20 seconds locally, well before the slower full build step below.
+      - run: pnpm run typecheck
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # No DATABASE_URL is set here deliberately — every data-access
+      # function in this app is written to fail closed (return empty
+      # results, not throw) when the database is unreachable, specifically
+      # so the site can build and the public pages still work if the
+      # database is briefly down. A CI build with no database configured
+      # is a real test of that property, not a workaround for one.
+      - run: pnpm run build

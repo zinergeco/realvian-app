@@ -1,8 +1,15 @@
 # Realvian
 
+[![CI](https://github.com/zinergeco/realvian-app/actions/workflows/ci.yml/badge.svg)](https://github.com/zinergeco/realvian-app/actions/workflows/ci.yml)
+
 UK property intelligence platform. The data layer above the listing portals.
 
-**Phase 0 complete** — foundations + marketing homepage.
+**In active development** — area intelligence, comparisons, blog, CMS,
+admin panel, public accounts, saved comparisons, a live landlord portal,
+and property calculators are all shipped. See the master reference
+document for a full, current breakdown; this README covers structure and
+commands, not feature status, since the latter changes too often to keep
+accurate here by hand.
 
 ## Quick start
 
