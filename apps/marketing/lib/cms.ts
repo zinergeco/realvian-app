@@ -19,6 +19,7 @@
  * the CMS is down. Overrides are an enhancement, not a dependency.
  */
 
+import { cache } from "react";
 import type { BlogPost, PostSection } from "./blog";
 
 /* ══════════════════════════════════════════════════════
@@ -134,17 +135,20 @@ export function applyOverride(
    otherwise so local development and builds work without a database.
    ══════════════════════════════════════════════════════ */
 
-let overrideCache: Map<string, ContentOverride> | null = null;
-
 export async function loadOverrides(): Promise<Map<string, ContentOverride>> {
-  if (overrideCache) return overrideCache;
-
+  // Deliberately NOT cached at module scope. This function is only called
+  // when a page actually renders (once per page, low traffic), and the
+  // Node process serving this app stays alive across requests — a
+  // module-level cache here would mean an admin saves an override,
+  // revalidatePath() correctly regenerates the page, and the regenerated
+  // page still reads the stale pre-save map, making the whole feature look
+  // broken. The DB round-trip cost of never caching is trivial at this
+  // volume; the correctness cost of caching wrong is not.
   const url = process.env.DATABASE_URL;
   if (!url) {
     // No database configured — pure generated output. This is the correct
     // behaviour for local dev and for CI builds, not an error.
-    overrideCache = new Map();
-    return overrideCache;
+    return new Map();
   }
 
   try {
@@ -220,7 +224,6 @@ export async function loadOverrides(): Promise<Map<string, ContentOverride>> {
     }
 
     await sql.end();
-    overrideCache = map;
     return map;
   } catch (err) {
     // Database unreachable — log and serve generated content.
@@ -229,18 +232,24 @@ export async function loadOverrides(): Promise<Map<string, ContentOverride>> {
       "[cms] override load failed, serving generated content:",
       err instanceof Error ? err.message : err,
     );
-    overrideCache = new Map();
-    return overrideCache;
+    return new Map();
   }
 }
 
-export async function getOverride(
+/**
+ * cache() here is React's per-request memoisation, not a persistent
+ * store — it dedupes the DB round-trip when both generateMetadata() and
+ * the page body call this for the same entity within one request, and
+ * resets automatically on every new request. This is safe in a way the
+ * module-level cache removed above was not.
+ */
+export const getOverride = cache(async function getOverride(
   entityType: ContentOverride["entityType"],
   entityKey: string,
 ): Promise<ContentOverride | null> {
   const map = await loadOverrides();
   return map.get(`${entityType}:${entityKey}`) ?? null;
-}
+});
 
 /** Site-wide settings, editable without a deploy */
 export async function getSetting<T>(key: string, fallback: T): Promise<T> {

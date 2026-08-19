@@ -16,6 +16,7 @@ import {
   selectProductsForPost,
 } from "@/lib/monetisation";
 import { getAllAreas } from "@/lib/areas";
+import { getOverride, applyOverride, mediaUrl, focalStyle } from "@/lib/cms";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -30,13 +31,17 @@ export async function generateMetadata({
   const post = getPostBySlug(slug);
   if (!post) return { title: "Report not found" };
 
+  const override = await getOverride("post", slug);
+  const resolved = applyOverride(post, override);
+  if (resolved.hidden) return { title: "Report not found" };
+
   return {
-    title: post.title,
-    description: post.description,
+    title: resolved.title,
+    description: resolved.description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
-      title: post.title,
-      description: post.description,
+      title: resolved.title,
+      description: resolved.description,
       url: `/blog/${post.slug}`,
       type: "article",
       publishedTime: post.dataDate,
@@ -53,7 +58,15 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const found = getPostBySlug(slug);
   if (!found) notFound();
-  const post = found;
+
+  const override = await getOverride("post", slug);
+  const resolved = applyOverride(found, override);
+  if (resolved.hidden) notFound();
+  // ResolvedPost extends BlogPost with the same field names, so every
+  // existing `post.title` / `post.description` / `post.sections` usage
+  // below picks up the override automatically — no further changes needed
+  // through the rest of this function.
+  const post = resolved;
 
   const related = post.relatedSlugs
     .map((s) => getPostBySlug(s))
@@ -167,6 +180,23 @@ export default async function BlogPostPage({
           <p className="mt-5 text-[17px] leading-[1.65] text-[var(--text-secondary)] max-w-[620px]">
             {post.description}
           </p>
+
+          {resolved.heroMedia && (
+            <div className="mt-8 rounded-[var(--radius-lg)] overflow-hidden border border-[var(--border)] max-w-[820px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mediaUrl(resolved.heroMedia)}
+                alt={resolved.heroMedia.altText}
+                className="w-full h-auto"
+                style={focalStyle(resolved.heroMedia)}
+              />
+              {resolved.heroMedia.credit && (
+                <p className="px-4 py-2 text-[11.5px] text-[var(--text-muted)] bg-[var(--bg-subtle)]">
+                  {resolved.heroMedia.credit}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

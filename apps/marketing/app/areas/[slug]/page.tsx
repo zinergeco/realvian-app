@@ -29,6 +29,7 @@ import {
   selectProductsForArea,
   enforceSlotLimit,
 } from "@/lib/monetisation";
+import { getOverride, mediaUrl, focalStyle } from "@/lib/cms";
 
 /* ── Static generation: every area page pre-rendered at build time ── */
 export function generateStaticParams() {
@@ -44,8 +45,11 @@ export async function generateMetadata({
   const area = getAreaBySlug(slug);
   if (!area) return { title: "Area not found" };
 
-  const title = `${area.district}, ${area.city} (${area.outcode}) — Area Guide & Property Data`;
-  const description = `${area.district} scores ${area.realvianScore}/100 on the Realvian Score. Average price ${fmtPrice(area.avgPrice)}, gross yield ${fmtYield(area.grossYield)}, five-year growth ${fmtPct(area.fiveYearGrowth)}. Schools, crime, transport and amenities analysed.`;
+  const override = await getOverride("area", slug);
+  if (override?.hidden) return { title: "Area not found" };
+
+  const title = override?.title ?? `${area.district}, ${area.city} (${area.outcode}) — Area Guide & Property Data`;
+  const description = override?.description ?? `${area.district} scores ${area.realvianScore}/100 on the Realvian Score. Average price ${fmtPrice(area.avgPrice)}, gross yield ${fmtYield(area.grossYield)}, five-year growth ${fmtPct(area.fiveYearGrowth)}. Schools, crime, transport and amenities analysed.`;
 
   return {
     title,
@@ -69,6 +73,12 @@ export default async function AreaPage({
   const found = getAreaBySlug(slug);
   if (!found) notFound();
   const area = found;
+
+  const override = await getOverride("area", slug);
+  if (override?.hidden) notFound();
+  // Areas don't have a "sections" concept like blog posts — just a
+  // straightforward field override for the one visible prose block.
+  const summary = override?.description ?? area.summary;
 
   const verdict = scoreVerdict(area.realvianScore);
   const similar = getSimilarAreas(area, 3);
@@ -111,7 +121,7 @@ export default async function AreaPage({
           latitude: area.lat,
           longitude: area.lng,
         },
-        description: area.summary,
+        description: summary,
       },
       {
         "@type": "Dataset",
@@ -190,8 +200,25 @@ export default async function AreaPage({
               </h1>
 
               <p className="text-[16.5px] leading-[1.65] text-[var(--text-secondary)] max-w-[640px]">
-                {area.summary}
+                {summary}
               </p>
+
+              {override?.heroMedia && (
+                <div className="mt-6 rounded-[var(--radius-lg)] overflow-hidden border border-[var(--border)] max-w-[640px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={mediaUrl(override.heroMedia)}
+                    alt={override.heroMedia.altText}
+                    className="w-full h-auto"
+                    style={focalStyle(override.heroMedia)}
+                  />
+                  {override.heroMedia.credit && (
+                    <p className="px-4 py-2 text-[11.5px] text-[var(--text-muted)] bg-[var(--bg-subtle)]">
+                      {override.heroMedia.credit}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-wrap gap-2.5 mt-7">
                 <Link href={`/compare?a=${area.slug}`}>
