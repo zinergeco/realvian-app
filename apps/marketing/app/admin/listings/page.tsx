@@ -44,7 +44,24 @@ export default async function ListingsPage() {
             {pending.map((l) => (
               <Card key={l.id} className="p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 flex gap-4">
+                    {(l.logoKey || l.coverKey) && (
+                      <div className="flex gap-2 shrink-0">
+                        {l.logoKey && (
+                          <div className="w-14 h-14 rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border)]">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={`/media/${l.logoKey}`} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        {l.coverKey && (
+                          <div className="w-24 h-14 rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border)]">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={`/media/${l.coverKey}`} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge tone="neutral" className="!text-[9.5px]">{l.category}</Badge>
                       <Badge tone="accent" className="!text-[9.5px]">{l.outcode}</Badge>
@@ -59,6 +76,7 @@ export default async function ListingsPage() {
                     <p className="text-[12px] text-[var(--text-muted)] mt-2">
                       {l.postcode}{l.website && ` · ${l.website}`}{l.phone && ` · ${l.phone}`}
                     </p>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {(["free", "featured", "premium"] as const).map((tier) => (

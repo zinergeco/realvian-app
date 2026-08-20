@@ -37,6 +37,59 @@ const ALLOWED_MIME = new Set([
   "image/svg+xml",
 ]);
 
+// Deliberately narrower than ALLOWED_MIME above. This set is for uploads
+// from anonymous, unauthenticated visitors (the business listing form) —
+// SVG is excluded specifically because an SVG can carry embedded script
+// content, a real XSS vector when the uploader isn't a trusted admin.
+// Admin uploads stay on the wider set; this one is for public submission.
+const PUBLIC_ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+/**
+ * Validates and stores an uploaded image, inserting a media row.
+ * Shared by admin media uploads and public listing-image uploads — the
+ * only difference between callers is the MIME allowlist and whether
+ * uploadedBy is a real admin id or null.
+ */
+async function storeUploadedImage(
+  file: File,
+  opts: {
+    altText: string;
+    uploadedBy: string | null;
+    allowedMime: Set<string>;
+    credit?: string | null;
+    licence?: string | null;
+  },
+): Promise<{ ok: true; mediaId: string } | { ok: false; error: string }> {
+  if (file.size === 0) return { ok: false, error: "Empty file." };
+  if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: "File is too large. Maximum 8 MB." };
+  if (!opts.allowedMime.has(file.type)) {
+    return { ok: false, error: `Unsupported file type: ${file.type}. Use JPEG, PNG or WebP.` };
+  }
+
+  const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().slice(0, 8);
+  const key = `${randomUUID()}.${ext}`;
+  const dest = path.join(UPLOAD_DIR, key);
+
+  await mkdir(UPLOAD_DIR, { recursive: true });
+  const buf = Buffer.from(await file.arrayBuffer());
+  await writeFile(dest, buf);
+
+  const mediaId = await data.insertMedia({
+    filename: file.name.slice(0, 200),
+    storageKey: key,
+    mimeType: file.type,
+    bytes: file.size,
+    width: null,
+    height: null,
+    altText: opts.altText,
+    credit: opts.credit ?? null,
+    licence: opts.licence ?? null,
+    uploadedBy: opts.uploadedBy,
+  });
+
+  return { ok: true, mediaId };
+}
+
 async function requireAdmin() {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
@@ -107,34 +160,17 @@ export async function uploadMediaAction(
   if (!altText) {
     return { error: "Alt text is required — describe the image for screen readers." };
   }
-  if (file.size > MAX_UPLOAD_BYTES) {
-    return { error: "File is too large. Maximum 8 MB." };
-  }
-  if (!ALLOWED_MIME.has(file.type)) {
-    return { error: `Unsupported file type: ${file.type}. Use JPEG, PNG, WebP, AVIF or SVG.` };
-  }
 
   try {
-    const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().slice(0, 8);
-    const key = `${randomUUID()}.${ext}`;
-    const dest = path.join(UPLOAD_DIR, key);
-
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    const buf = Buffer.from(await file.arrayBuffer());
-    await writeFile(dest, buf);
-
-    const id = await data.insertMedia({
-      filename: file.name.slice(0, 200),
-      storageKey: key,
-      mimeType: file.type,
-      bytes: file.size,
-      width: null,
-      height: null,
+    const result = await storeUploadedImage(file, {
       altText,
+      uploadedBy: admin.id,
+      allowedMime: ALLOWED_MIME,
       credit,
       licence,
-      uploadedBy: admin.id,
     });
+    if (!result.ok) return { error: result.error };
+    const id = result.mediaId;
 
     await audit({
       actorId: admin.id,
@@ -427,6 +463,34 @@ export async function submitListingAction(
     "-" +
     outcode.toLowerCase();
 
+  // Images are optional. If a file WAS chosen but fails validation, we
+  // surface that clearly and stop — silently dropping an image the
+  // business owner thought they'd attached would be more confusing than
+  // an error asking them to fix the file and resubmit.
+  let logoMediaId: string | null = null;
+  const logoFile = formData.get("logo");
+  if (logoFile instanceof File && logoFile.size > 0) {
+    const result = await storeUploadedImage(logoFile, {
+      altText: `${businessName} logo`,
+      uploadedBy: null,
+      allowedMime: PUBLIC_ALLOWED_MIME,
+    });
+    if (!result.ok) return { error: `Logo: ${result.error}` };
+    logoMediaId = result.mediaId;
+  }
+
+  let coverMediaId: string | null = null;
+  const coverFile = formData.get("coverImage");
+  if (coverFile instanceof File && coverFile.size > 0) {
+    const result = await storeUploadedImage(coverFile, {
+      altText: `${businessName} cover photo`,
+      uploadedBy: null,
+      allowedMime: PUBLIC_ALLOWED_MIME,
+    });
+    if (!result.ok) return { error: `Cover image: ${result.error}` };
+    coverMediaId = result.mediaId;
+  }
+
   try {
     await data.createListing({
       businessName,
@@ -440,6 +504,8 @@ export async function submitListingAction(
       outcode,
       city: geo?.city ?? null,
       region: geo?.region ?? null,
+      logoMediaId,
+      coverMediaId,
     });
     await audit({
       actorEmail: email ?? undefined,

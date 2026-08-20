@@ -73,6 +73,7 @@ export interface BusinessListing {
   ratingAvg: number | null;
   reviewCount: number;
   logoKey: string | null;
+  coverKey: string | null;
 }
 
 export const CATEGORY_LABELS: Record<ListingCategory, string> = {
@@ -443,9 +444,10 @@ export async function loadApprovedListings(): Promise<BusinessListing[]> {
       SELECT b.id, b.business_name, b.slug, b.category, b.description,
              b.website, b.phone, b.outcode, b.city, b.region,
              b.tier, b.is_paid, b.verified, b.rating_avg, b.review_count,
-             m.storage_key AS logo_key
+             lm.storage_key AS logo_key, cm.storage_key AS cover_key
       FROM business_listings b
-      LEFT JOIN media m ON m.id = b.logo_media_id AND m.deleted_at IS NULL
+      LEFT JOIN media lm ON lm.id = b.logo_media_id AND lm.deleted_at IS NULL
+      LEFT JOIN media cm ON cm.id = b.media_id AND cm.deleted_at IS NULL
       WHERE b.status = 'approved'
         AND (b.expires_at IS NULL OR b.expires_at > now())
     `;
@@ -467,6 +469,7 @@ export async function loadApprovedListings(): Promise<BusinessListing[]> {
       ratingAvg: r.rating_avg === null ? null : Number(r.rating_avg),
       reviewCount: Number(r.review_count ?? 0),
       logoKey: r.logo_key ? String(r.logo_key) : null,
+      coverKey: r.cover_key ? String(r.cover_key) : null,
     }));
   } catch (err) {
     console.error("[monetisation] listing load failed:", err);

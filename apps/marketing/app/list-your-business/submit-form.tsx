@@ -70,6 +70,44 @@ export function SubmitForm({ defaultArea }: { defaultArea: string }) {
                  hint="We'll use this to confirm your listing." />
         </div>
 
+        <div className="grid sm:grid-cols-2 gap-4">
+          <label className="block">
+            <span className="block text-[12.5px] font-medium text-[var(--text-primary)] mb-1.5">
+              Logo
+            </span>
+            <input
+              type="file"
+              name="logo"
+              accept="image/jpeg,image/png,image/webp"
+              className="w-full text-[13px] text-[var(--text-secondary)]
+                         file:mr-3 file:py-2 file:px-4 file:rounded-[var(--radius-sm)]
+                         file:border-0 file:text-[13px] file:font-medium
+                         file:bg-[var(--primary-subtle)] file:text-[var(--primary)]"
+            />
+            <span className="block text-[11.5px] text-[var(--text-muted)] mt-1.5">
+              Square works best. Shown next to your name everywhere you appear.
+            </span>
+          </label>
+
+          <label className="block">
+            <span className="block text-[12.5px] font-medium text-[var(--text-primary)] mb-1.5">
+              Cover image
+            </span>
+            <input
+              type="file"
+              name="coverImage"
+              accept="image/jpeg,image/png,image/webp"
+              className="w-full text-[13px] text-[var(--text-secondary)]
+                         file:mr-3 file:py-2 file:px-4 file:rounded-[var(--radius-sm)]
+                         file:border-0 file:text-[13px] file:font-medium
+                         file:bg-[var(--primary-subtle)] file:text-[var(--primary)]"
+            />
+            <span className="block text-[11.5px] text-[var(--text-muted)] mt-1.5">
+              Wide banner photo — your premises, team or work. Optional.
+            </span>
+          </label>
+        </div>
+
         <p className="text-[12.5px] text-[var(--text-muted)] leading-relaxed">
           Basic listings are free. We review every submission before it goes
           live, and we may contact you to verify details. By submitting you

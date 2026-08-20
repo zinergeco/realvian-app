@@ -117,7 +117,9 @@ export async function insertMedia(input: {
   altText: string;
   credit: string | null;
   licence: string | null;
-  uploadedBy: string;
+  /** null for public submissions (e.g. a business listing logo) — the
+   * media table's uploaded_by column is nullable specifically for this. */
+  uploadedBy: string | null;
 }): Promise<string> {
   const sql = db();
   try {
@@ -203,8 +205,15 @@ export async function upsertOverride(input: {
          ${input.heroMediaId ?? null}, ${input.hidden ?? false},
          ${input.updatedBy}::uuid, now())
       ON CONFLICT (entity_type, entity_key) DO UPDATE SET
-        title       = COALESCE(EXCLUDED.title, content_overrides.title),
-        description = COALESCE(EXCLUDED.description, content_overrides.description),
+        -- Unconditional overwrite, not COALESCE. The UI's own copy says
+        -- "leave blank to keep the generated title" — meaning blank must
+        -- mean "no override", not "keep whatever was here before". A
+        -- COALESCE here would make it impossible to ever clear a field
+        -- back to the generated version once set, which is exactly the
+        -- bug this replaces (confirmed live: saving blank fields left
+        -- the old override value in place indefinitely).
+        title       = EXCLUDED.title,
+        description = EXCLUDED.description,
         hero_media_id = EXCLUDED.hero_media_id,
         hidden      = EXCLUDED.hidden,
         updated_by  = EXCLUDED.updated_by,
@@ -385,6 +394,8 @@ export interface ListingRow {
   status: string;
   verified: boolean;
   createdAt: string;
+  logoKey: string | null;
+  coverKey: string | null;
 }
 
 export async function listListings(status?: string): Promise<ListingRow[]> {
@@ -392,14 +403,22 @@ export async function listListings(status?: string): Promise<ListingRow[]> {
   try {
     const rows = status
       ? await sql<Record<string, unknown>[]>`
-          SELECT id, business_name, category, description, website, phone,
-                 postcode, outcode, city, tier, status, verified, created_at
-          FROM business_listings WHERE status = ${status}
-          ORDER BY created_at DESC`
+          SELECT b.id, b.business_name, b.category, b.description, b.website, b.phone,
+                 b.postcode, b.outcode, b.city, b.tier, b.status, b.verified, b.created_at,
+                 lm.storage_key AS logo_key, cm.storage_key AS cover_key
+          FROM business_listings b
+          LEFT JOIN media lm ON lm.id = b.logo_media_id AND lm.deleted_at IS NULL
+          LEFT JOIN media cm ON cm.id = b.media_id AND cm.deleted_at IS NULL
+          WHERE b.status = ${status}
+          ORDER BY b.created_at DESC`
       : await sql<Record<string, unknown>[]>`
-          SELECT id, business_name, category, description, website, phone,
-                 postcode, outcode, city, tier, status, verified, created_at
-          FROM business_listings ORDER BY created_at DESC`;
+          SELECT b.id, b.business_name, b.category, b.description, b.website, b.phone,
+                 b.postcode, b.outcode, b.city, b.tier, b.status, b.verified, b.created_at,
+                 lm.storage_key AS logo_key, cm.storage_key AS cover_key
+          FROM business_listings b
+          LEFT JOIN media lm ON lm.id = b.logo_media_id AND lm.deleted_at IS NULL
+          LEFT JOIN media cm ON cm.id = b.media_id AND cm.deleted_at IS NULL
+          ORDER BY b.created_at DESC`;
     return rows.map((r) => ({
       id: String(r.id),
       businessName: String(r.business_name),
@@ -414,6 +433,8 @@ export async function listListings(status?: string): Promise<ListingRow[]> {
       status: String(r.status),
       verified: Boolean(r.verified),
       createdAt: (r.created_at as Date).toISOString(),
+      logoKey: r.logo_key ? String(r.logo_key) : null,
+      coverKey: r.cover_key ? String(r.cover_key) : null,
     }));
   } finally {
     await sql.end();
@@ -426,6 +447,8 @@ export async function createListing(input: {
   category: string;
   description: string;
   website: string | null;
+  logoMediaId: string | null;
+  coverMediaId: string | null;
   phone: string | null;
   email: string | null;
   postcode: string;
@@ -438,11 +461,12 @@ export async function createListing(input: {
     await sql`
       INSERT INTO business_listings
         (business_name, slug, category, description, website, phone, email,
-         postcode, outcode, city, region, tier, status)
+         postcode, outcode, city, region, logo_media_id, media_id, tier, status)
       VALUES
         (${input.businessName}, ${input.slug}, ${input.category}, ${input.description},
          ${input.website}, ${input.phone}, ${input.email},
          ${input.postcode}, ${input.outcode}, ${input.city}, ${input.region},
+         ${input.logoMediaId ?? null}, ${input.coverMediaId ?? null},
          'free', 'pending')
     `;
   } finally {

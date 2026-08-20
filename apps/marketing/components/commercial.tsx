@@ -43,56 +43,91 @@ export function ListingCard({
   context?: { path?: string; slot?: string; outcode?: string };
 }) {
   const href = trackedUrl("business_listing", listing.id, context);
+  const logoUrl = listing.logoKey ? `/media/${listing.logoKey}` : null;
+  const coverUrl = listing.coverKey ? `/media/${listing.coverKey}` : null;
 
   return (
-    <Card hover className="p-5 h-full flex flex-col">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <Badge tone="neutral" className="!text-[9.5px] !py-0.5">
-              {CATEGORY_LABELS[listing.category]}
-            </Badge>
-            {listing.verified && (
-              <Badge tone="primary" className="!text-[9.5px] !py-0.5">
-                ✓ Verified
-              </Badge>
-            )}
-          </div>
-          <h3 className="text-[16px] font-semibold text-[var(--text-primary)] leading-snug">
-            {listing.businessName}
-          </h3>
-        </div>
-        {listing.ratingAvg !== null && listing.reviewCount > 0 && (
-          <div className="text-right shrink-0">
+    <Card hover className="h-full flex flex-col overflow-hidden">
+      {coverUrl && (
+        <div className="relative h-[120px] shrink-0 bg-[var(--bg-subtle)] border-b border-[var(--border)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverUrl}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+          />
+          {logoUrl && (
             <div
-              className="tnum text-[15px] font-semibold"
+              className="absolute top-3 left-3 w-11 h-11 rounded-[var(--radius-md)] overflow-hidden
+                         border-2 border-[var(--bg)] bg-[var(--bg)] shadow-md"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logoUrl} alt={`${listing.businessName} logo`} className="w-full h-full object-cover" />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="min-w-0 flex items-start gap-2.5">
+            {/* Logo shown inline next to the name only when there's no
+                cover photo to badge it onto above — never render it twice. */}
+            {logoUrl && !coverUrl && (
+              <div className="w-9 h-9 rounded-[var(--radius-sm)] overflow-hidden shrink-0 border border-[var(--border)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoUrl} alt={`${listing.businessName} logo`} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <Badge tone="neutral" className="!text-[9.5px] !py-0.5">
+                  {CATEGORY_LABELS[listing.category]}
+                </Badge>
+                {listing.verified && (
+                  <Badge tone="primary" className="!text-[9.5px] !py-0.5">
+                    ✓ Verified
+                  </Badge>
+                )}
+              </div>
+              <h3 className="text-[16px] font-semibold text-[var(--text-primary)] leading-snug">
+                {listing.businessName}
+              </h3>
+            </div>
+          </div>
+          {listing.ratingAvg !== null && listing.reviewCount > 0 && (
+            <div className="text-right shrink-0">
+              <div
+                className="tnum text-[15px] font-semibold"
+                style={{ color: "var(--primary)" }}
+              >
+                {listing.ratingAvg.toFixed(1)}
+              </div>
+              <div className="text-[10.5px] text-[var(--text-muted)]">
+                {listing.reviewCount} review{listing.reviewCount === 1 ? "" : "s"}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <p className="text-[13.5px] leading-relaxed text-[var(--text-secondary)] flex-1">
+          {listing.description}
+        </p>
+
+        <div className="flex items-center justify-between gap-3 mt-4 pt-3.5 border-t border-[var(--border)]">
+          {listing.isPaid ? <AdLabel kind="promoted" /> : <span />}
+          {listing.website && (
+            <a
+              href={href}
+              {...COMMERCIAL_LINK_ATTRS}
+              className="text-[13px] font-medium transition-transform duration-200 hover:translate-x-0.5"
               style={{ color: "var(--primary)" }}
             >
-              {listing.ratingAvg.toFixed(1)}
-            </div>
-            <div className="text-[10.5px] text-[var(--text-muted)]">
-              {listing.reviewCount} review{listing.reviewCount === 1 ? "" : "s"}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <p className="text-[13.5px] leading-relaxed text-[var(--text-secondary)] flex-1">
-        {listing.description}
-      </p>
-
-      <div className="flex items-center justify-between gap-3 mt-4 pt-3.5 border-t border-[var(--border)]">
-        {listing.isPaid ? <AdLabel kind="promoted" /> : <span />}
-        {listing.website && (
-          <a
-            href={href}
-            {...COMMERCIAL_LINK_ATTRS}
-            className="text-[13px] font-medium transition-transform duration-200 hover:translate-x-0.5"
-            style={{ color: "var(--primary)" }}
-          >
-            Visit site →
-          </a>
-        )}
+              Visit site →
+            </a>
+          )}
+        </div>
       </div>
     </Card>
   );
