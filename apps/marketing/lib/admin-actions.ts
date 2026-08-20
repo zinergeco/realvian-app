@@ -70,24 +70,37 @@ async function storeUploadedImage(
   const key = `${randomUUID()}.${ext}`;
   const dest = path.join(UPLOAD_DIR, key);
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
-  const buf = Buffer.from(await file.arrayBuffer());
-  await writeFile(dest, buf);
+  // Everything below touches the filesystem or the database — both can
+  // fail for reasons entirely outside the caller's control (permissions,
+  // disk full, a transient DB blip). Without this try/catch, any such
+  // failure throws straight past this function and crashes the whole
+  // page with an opaque Next.js error screen — confirmed happening live
+  // when this upload path first shipped with an unwritable directory.
+  // A form submission failing with a clear message is a minor
+  // inconvenience; the same failure taking down the entire page is not.
+  try {
+    await mkdir(UPLOAD_DIR, { recursive: true });
+    const buf = Buffer.from(await file.arrayBuffer());
+    await writeFile(dest, buf);
 
-  const mediaId = await data.insertMedia({
-    filename: file.name.slice(0, 200),
-    storageKey: key,
-    mimeType: file.type,
-    bytes: file.size,
-    width: null,
-    height: null,
-    altText: opts.altText,
-    credit: opts.credit ?? null,
-    licence: opts.licence ?? null,
-    uploadedBy: opts.uploadedBy,
-  });
+    const mediaId = await data.insertMedia({
+      filename: file.name.slice(0, 200),
+      storageKey: key,
+      mimeType: file.type,
+      bytes: file.size,
+      width: null,
+      height: null,
+      altText: opts.altText,
+      credit: opts.credit ?? null,
+      licence: opts.licence ?? null,
+      uploadedBy: opts.uploadedBy,
+    });
 
-  return { ok: true, mediaId };
+    return { ok: true, mediaId };
+  } catch (err) {
+    console.error("[upload] storeUploadedImage failed:", err);
+    return { ok: false, error: "Could not save this image. Please try again." };
+  }
 }
 
 async function requireAdmin() {
