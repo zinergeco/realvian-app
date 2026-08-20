@@ -133,9 +133,10 @@ export async function getCurrentUser(): Promise<PublicUser | null> {
     } finally {
       await sql.end();
     }
-  } catch {
+  } catch (err) {
     // Database down — fail closed. A visitor briefly appearing signed
     // out is a far smaller problem than any code path that fails open.
+    console.error("[auth] getCurrentUser query failed:", err);
     return null;
   }
 }
@@ -148,8 +149,9 @@ export async function destroySession(): Promise<void> {
       const sql = await db();
       await sql`DELETE FROM sessions WHERE id = ${sessionId}`;
       await sql.end();
-    } catch {
+    } catch (err) {
       /* best effort — cookie is cleared regardless */
+      console.error("[auth] session delete on logout failed:", err);
     }
   }
   store.delete(SESSION_COOKIE);
@@ -173,7 +175,8 @@ export async function signup(
   let sql;
   try {
     sql = await db();
-  } catch {
+  } catch (err) {
+    console.error("[auth] db() unavailable during signup:", err);
     return { ok: false, error: "Sign-up is unavailable right now." };
   }
 
@@ -225,7 +228,8 @@ export async function login(
   let sql;
   try {
     sql = await db();
-  } catch {
+  } catch (err) {
+    console.error("[auth] db() unavailable during login:", err);
     return { ok: false, error: "Sign-in is unavailable right now." };
   }
 

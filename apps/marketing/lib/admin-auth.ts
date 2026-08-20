@@ -127,8 +127,9 @@ export async function getCurrentAdmin(): Promise<AdminUser | null> {
     } finally {
       await sql.end();
     }
-  } catch {
+  } catch (err) {
     // Database down — deny admin access rather than fail open.
+    console.error("[admin auth] getCurrentAdmin query failed:", err);
     return null;
   }
 }
@@ -141,8 +142,9 @@ export async function destroySession(): Promise<void> {
       const sql = await db();
       await sql`DELETE FROM admin_sessions WHERE id = ${sessionId}`;
       await sql.end();
-    } catch {
+    } catch (err) {
       /* best effort — cookie is cleared regardless */
+      console.error("[admin auth] session delete on logout failed:", err);
     }
   }
   store.delete(SESSION_COOKIE);
@@ -175,7 +177,8 @@ export async function login(
   let sql;
   try {
     sql = await db();
-  } catch {
+  } catch (err) {
+    console.error("[admin auth] db() unavailable during login:", err);
     return { ok: false, error: "Authentication is unavailable right now." };
   }
 
