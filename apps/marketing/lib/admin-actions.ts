@@ -337,6 +337,12 @@ export async function toggleProgramAction(formData: FormData): Promise<void> {
     ip: await clientIp(),
   });
   revalidatePath("/admin/affiliates");
+  // loadActiveProducts() requires the parent programme to be active too
+  // (WHERE p.active AND pr.active) — toggling a programme off silently
+  // hides every one of its products from public pages, so this needs
+  // the same broad revalidation as the product-level toggle.
+  revalidatePath("/areas", "layout");
+  revalidatePath("/blog", "layout");
 }
 
 export async function createProductAction(
@@ -387,6 +393,13 @@ export async function createProductAction(
       ip: await clientIp(),
     });
     revalidatePath("/admin/affiliates");
+    // Products can appear on any of the ~38 area pages or ~33 blog posts
+    // depending on scope/topic matching computed at render time — unlike
+    // a content override, there's no single page to target. Revalidate
+    // both layouts broadly rather than repeat the CMS-override caching
+    // bug where a write path forgot to invalidate the pages it affects.
+    revalidatePath("/areas", "layout");
+    revalidatePath("/blog", "layout");
     return { ok: true };
   } catch (err) {
     console.error("[admin] product create failed:", err);
@@ -409,6 +422,8 @@ export async function toggleProductAction(formData: FormData): Promise<void> {
     ip: await clientIp(),
   });
   revalidatePath("/admin/affiliates");
+  revalidatePath("/areas", "layout");
+  revalidatePath("/blog", "layout");
 }
 
 /* ══════════════════════════════════════════════════════
