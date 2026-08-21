@@ -220,23 +220,19 @@ export default async function AccountPage() {
       </Card>
 
       <Card className="p-6 mb-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-1.5" style={{ color: "var(--primary)" }}>
-              Property watchlist
-            </h2>
-            <p className="text-[14px] text-[var(--text-secondary)]">
-              Track properties as you move from researching to offer.
-            </p>
-          </div>
-          <Link
-            href="/account/properties"
-            className="text-[13px] font-medium shrink-0"
-            style={{ color: "var(--primary)" }}
-          >
-            Open →
-          </Link>
-        </div>
+        <h2 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
+          Coming to this account
+        </h2>
+        <ul className="space-y-3">
+          {[
+            "A single place to track properties you're evaluating",
+          ].map((t) => (
+            <li key={t} className="flex gap-2.5 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+              <span aria-hidden="true" style={{ color: "var(--color-gold)" }}>→</span>
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
       </Card>
 
       <div className="flex flex-wrap gap-3">
