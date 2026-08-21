@@ -5,6 +5,8 @@ import { getCurrentUser } from "@/lib/public-auth";
 import { logoutAction } from "@/lib/public-auth-actions";
 import { deleteComparisonAction } from "@/lib/comparison-actions";
 import { listUserComparisons } from "@/lib/comparisons";
+import { unfollowAreaFormAction } from "@/lib/followed-area-actions";
+import { listFollowedAreas } from "@/lib/followed-areas";
 import { getAreaBySlug } from "@/lib/areas";
 import { Badge, Card, SectionLabel, Button } from "@/components/ui";
 import { ScoreRing } from "@/components/area-viz";
@@ -46,6 +48,11 @@ export default async function AccountPage() {
       Boolean(c.a && c.b),
     );
 
+  const followed = await listFollowedAreas(user.id);
+  const followedWithAreas = followed
+    .map((f) => ({ ...f, area: getAreaBySlug(f.areaSlug) }))
+    .filter((f): f is typeof f & { area: NonNullable<typeof f.area> } => Boolean(f.area));
+
   return (
     <div className="mx-auto max-w-[720px] px-5 sm:px-8 pt-[104px] pb-20 lg:pt-[128px]">
       <SectionLabel>Account</SectionLabel>
@@ -84,7 +91,7 @@ export default async function AccountPage() {
         </div>
       </Card>
 
-      {/* ══════════ SAVED COMPARISONS — now real ══════════ */}
+      {/* ══════════ SAVED COMPARISONS ══════════ */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between gap-4 mb-4">
           <h2
@@ -148,13 +155,76 @@ export default async function AccountPage() {
         )}
       </Card>
 
+      {/* ══════════ FOLLOWED AREAS — now real ══════════ */}
+      <Card className="p-6 mb-6">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h2
+            className="text-[13px] font-semibold tracking-[0.06em] uppercase"
+            style={{ color: "var(--primary)" }}
+          >
+            Followed areas
+          </h2>
+          <Link href="/areas" className="text-[13px] font-medium" style={{ color: "var(--primary)" }}>
+            Browse areas →
+          </Link>
+        </div>
+
+        {followedWithAreas.length === 0 ? (
+          <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed">
+            Nothing followed yet. Open any{" "}
+            <Link href="/areas" style={{ color: "var(--primary)" }}>
+              area page
+            </Link>{" "}
+            and hit "Follow this area" to keep it here.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {followedWithAreas.map((f) => (
+              <li
+                key={f.id}
+                className="flex items-center gap-4 p-3.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-subtle)]"
+              >
+                <ScoreRing score={f.area.realvianScore} size={40} />
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/areas/${f.area.slug}`}
+                    className="text-[14.5px] font-medium text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors"
+                  >
+                    {f.area.district}
+                  </Link>
+                  <p className="text-[12px] text-[var(--text-muted)] mt-0.5">
+                    {f.area.city} · {f.area.outcode} — followed{" "}
+                    {new Date(f.createdAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </p>
+                </div>
+                <form action={unfollowAreaFormAction}>
+                  <input type="hidden" name="areaSlug" value={f.areaSlug} />
+                  <button
+                    type="submit"
+                    className="text-[12.5px] text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors shrink-0"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="text-[12px] text-[var(--text-muted)] mt-4">
+          This tracks areas here for quick access. Email alerts on score
+          changes aren't built yet.
+        </p>
+      </Card>
+
       <Card className="p-6 mb-6">
         <h2 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
           Coming to this account
         </h2>
         <ul className="space-y-3">
           {[
-            "Follow areas and get notified when their score changes",
             "A single place to track properties you're evaluating",
           ].map((t) => (
             <li key={t} className="flex gap-2.5 text-[14px] leading-relaxed text-[var(--text-secondary)]">

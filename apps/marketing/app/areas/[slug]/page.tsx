@@ -30,6 +30,9 @@ import {
   enforceSlotLimit,
 } from "@/lib/monetisation";
 import { getOverride, mediaUrl, focalStyle } from "@/lib/cms";
+import { getCurrentUser } from "@/lib/public-auth";
+import { isAreaFollowed } from "@/lib/followed-areas";
+import { FollowAreaButton } from "./follow-area-button";
 
 /* ── Static generation: every area page pre-rendered at build time ── */
 export function generateStaticParams() {
@@ -82,6 +85,9 @@ export default async function AreaPage({
 
   const verdict = scoreVerdict(area.realvianScore);
   const similar = getSimilarAreas(area, 3);
+
+  const user = await getCurrentUser();
+  const isFollowed = user ? await isAreaFollowed(user.id, area.slug) : false;
 
   // Commercial content — geographically routed to this area.
   // Both loaders return [] with no database configured, so the page
@@ -224,6 +230,11 @@ export default async function AreaPage({
                 <Link href={`/compare?a=${area.slug}`}>
                   <Button variant="primary">Compare this area</Button>
                 </Link>
+                <FollowAreaButton
+                  areaSlug={area.slug}
+                  isLoggedIn={Boolean(user)}
+                  initiallyFollowed={isFollowed}
+                />
                 <Link href="/areas">
                   <Button variant="secondary">Browse all areas</Button>
                 </Link>
