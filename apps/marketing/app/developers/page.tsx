@@ -1,0 +1,179 @@
+import type { Metadata } from "next";
+import { Badge, Card, SectionLabel } from "@/components/ui";
+
+export const metadata: Metadata = {
+  title: "Developer API",
+  description: "Free, public JSON API for Realvian's UK area intelligence data.",
+  alternates: { canonical: "/developers" },
+};
+
+function CodeBlock({ children }: { children: string }) {
+  return (
+    <pre
+      className="text-[12.5px] leading-relaxed p-4 rounded-[var(--radius-md)] overflow-x-auto
+                 bg-[var(--bg-subtle)] border border-[var(--border)]"
+      style={{ fontFamily: "var(--font-mono)" }}
+    >
+      <code>{children}</code>
+    </pre>
+  );
+}
+
+function Endpoint({
+  method,
+  path,
+  description,
+  children,
+}: {
+  method: string;
+  path: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className="p-6 mb-6">
+      <div className="flex items-center gap-2.5 mb-2">
+        <Badge tone="primary">{method}</Badge>
+        <code className="text-[14px]" style={{ fontFamily: "var(--font-mono)" }}>
+          {path}
+        </code>
+      </div>
+      <p className="text-[14px] text-[var(--text-secondary)] mb-4">{description}</p>
+      {children}
+    </Card>
+  );
+}
+
+export default function DevelopersPage() {
+  return (
+    <>
+      <section className="relative overflow-hidden border-b border-[var(--border)]">
+        <div className="absolute inset-0 grid-bg opacity-50" aria-hidden="true" />
+        <div className="absolute inset-0 glow-emerald" aria-hidden="true" />
+        <div className="relative z-10 mx-auto max-w-[820px] px-5 sm:px-8 pt-[104px] pb-16 lg:pt-[128px]">
+          <SectionLabel>Developers</SectionLabel>
+          <div className="mb-5">
+            <Badge tone="primary">Free · Beta</Badge>
+          </div>
+          <h1
+            className="text-[var(--text-primary)] mb-5"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(32px, 4.6vw, 50px)",
+              lineHeight: 1.04,
+              letterSpacing: "-0.03em",
+              fontWeight: 300,
+            }}
+          >
+            Realvian API
+          </h1>
+          <p className="text-[16px] leading-[1.65] text-[var(--text-secondary)] max-w-[600px]">
+            Read-only JSON access to the same area data that powers
+            realvian.co.uk — scores, prices, yields and the six liveability
+            dimensions for every area we cover. No API key required yet.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[820px] px-5 sm:px-8 py-14">
+        <Card className="p-5 mb-8">
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+            <strong className="text-[var(--text-primary)]">Beta status, honestly stated:</strong>{" "}
+            this API is public and free with no authentication or rate
+            limiting implemented yet — reasonable use is fine, but don't
+            build production infrastructure that assumes today's behaviour
+            is permanent. API keys and published rate limits are planned
+            once usage justifies them.
+          </p>
+        </Card>
+
+        <h2
+          className="text-[22px] text-[var(--text-primary)] mb-4"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
+        >
+          Endpoints
+        </h2>
+
+        <Endpoint
+          method="GET"
+          path="/api/v1/areas"
+          description="List every area Realvian covers. Supports optional city and region filters."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas?city=Manchester`}</CodeBlock>
+          <p className="text-[13px] text-[var(--text-muted)] mt-3 mb-1.5">Response</p>
+          <CodeBlock>{`{
+  "data": [
+    {
+      "slug": "didsbury-m20",
+      "district": "Didsbury",
+      "city": "Manchester",
+      "region": "North West",
+      "outcode": "M20",
+      "realvianScore": 87,
+      "investmentScore": 79,
+      "avgPrice": 412500,
+      "avgRent": 1450,
+      "grossYield": 5.2,
+      "fiveYearGrowth": 18.4,
+      "dataStatus": "geography-live"
+    }
+  ],
+  "meta": { "count": 4, "generatedAt": "2026-08-22T12:00:00.000Z" }
+}`}</CodeBlock>
+        </Endpoint>
+
+        <Endpoint
+          method="GET"
+          path="/api/v1/areas/{slug}"
+          description="Full detail for a single area, including all six liveability dimensions, editorial summary, and strengths/watchouts. Returns 404 with a JSON error body if the slug doesn't exist."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas/didsbury-m20`}</CodeBlock>
+        </Endpoint>
+
+        <h2
+          className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
+        >
+          The <code style={{ fontFamily: "var(--font-mono)" }}>dataStatus</code> field
+        </h2>
+        <p className="text-[14.5px] leading-relaxed text-[var(--text-secondary)] mb-4">
+          Realvian is upfront on the site about which figures are drawn
+          from live public data sources and which are still illustrative
+          while we build out full coverage — this field carries that same
+          honesty into the API rather than presenting every number with
+          equal confidence.
+        </p>
+        <ul className="space-y-2 mb-8">
+          {[
+            ["dimensions-live", "The six liveability dimensions are computed from live public data sources."],
+            ["geography-live", "Location (postcode, coordinates) is real; liveability scores are still illustrative."],
+            ["illustrative", "Both location and scores are illustrative pending live data coverage."],
+          ].map(([status, desc]) => (
+            <li key={status} className="flex gap-3 text-[13.5px] text-[var(--text-secondary)]">
+              <code
+                className="shrink-0 text-[12px] px-2 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-subtle)] border border-[var(--border)]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {status}
+              </code>
+              <span>{desc}</span>
+            </li>
+          ))}
+        </ul>
+
+        <h2
+          className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
+        >
+          Usage
+        </h2>
+        <ul className="space-y-2.5 text-[14px] text-[var(--text-secondary)] leading-relaxed">
+          <li>· CORS is open — call these endpoints directly from a browser on any domain.</li>
+          <li>· Responses are cached for 60 seconds; don't poll faster than that.</li>
+          <li>· Attribution isn't required, but a link back to realvian.co.uk is appreciated.</li>
+          <li>· This is informational data, not financial advice — see our <a href="/legal/ai" style={{ color: "var(--primary)" }}>AI disclosure</a> for how scores are generated.</li>
+        </ul>
+      </section>
+    </>
+  );
+}

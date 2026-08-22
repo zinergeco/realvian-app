@@ -9,6 +9,7 @@ const COLUMNS = [
       { label: "Compare areas", href: "/compare" },
       { label: "Calculators", href: "/tools" },
       { label: "Market reports", href: "/blog" },
+      { label: "Developer API", href: "/developers" },
       { label: "List your business", href: "/list-your-business" },
     ],
   },
