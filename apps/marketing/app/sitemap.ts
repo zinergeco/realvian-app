@@ -12,6 +12,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/areas`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/compare`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/tools`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/portals`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/portals/landlord`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/portals/investor`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/portals/agent`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/portals/developer`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/list-your-business`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/developers`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE}/contact`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   const postPages: MetadataRoute.Sitemap = getAllPosts().map((p) => ({
