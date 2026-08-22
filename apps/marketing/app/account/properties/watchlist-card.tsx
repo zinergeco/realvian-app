@@ -53,6 +53,7 @@ export function WatchlistCard({ item }: { item: WatchlistItem }) {
         <form action={updateWatchlistStatusAction} className="flex-1">
           <input type="hidden" name="id" value={item.id} />
           <select
+            key={item.status}
             name="status"
             defaultValue={item.status}
             onChange={(e) => e.currentTarget.form?.requestSubmit()}
