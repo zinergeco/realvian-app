@@ -15,17 +15,8 @@ const PORTALS: Record<
   // at app/portals/investor/page.tsx (a static route, which Next.js
   // resolves ahead of this dynamic [type] segment for the exact same
   // path), same reasoning as the "landlord" exclusion above.
-  agent: {
-    name: "Agent portal",
-    description:
-      "A way for estate and letting agents to generate qualified local leads and hand clients something more substantial than a printed brochure.",
-    bullets: [
-      "Locally qualified leads from people researching your patch",
-      "White-label area reports you can send to clients under your own name",
-      "Comparable market analysis pulled from the same data as the public site",
-      "A listing presence on every area page you cover",
-    ],
-  },
+  // "agent" deliberately not listed here — same reasoning as landlord
+  // and investor above: it has its own real page.
   developer: {
     name: "Developer portal",
     description:

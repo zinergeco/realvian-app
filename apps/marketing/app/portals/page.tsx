@@ -6,7 +6,7 @@ import { IlloPortfolio, IlloAlerts, IlloMap, IlloDataFusion } from "@/components
 export const metadata: Metadata = {
   title: "Portals for Landlords, Investors, Agents & Developers",
   description:
-    "Dedicated workspaces for landlords, investors, agents and developers. Two are live — see what's coming for the rest.",
+    "Dedicated workspaces for landlords, investors, agents and developers. Three are live — developers is still being built.",
   alternates: { canonical: "/portals" },
 };
 
@@ -28,9 +28,9 @@ const PORTALS = [
   {
     type: "agent",
     name: "Agents",
-    desc: "Qualified local leads, white-label area reports, and comparable market analysis.",
+    desc: "List your agency on every area you cover, and use the comparison tool with clients.",
     illo: IlloDataFusion,
-    live: false,
+    live: true,
   },
   {
     type: "developer",
@@ -68,11 +68,10 @@ export default function PortalsHubPage() {
           <p className="mt-5 max-w-[560px] text-[16px] leading-[1.65] text-[var(--text-secondary)]">
             Landlords, investors, agents and developers all read the same
             underlying data, but need to act on it differently. Each portal
-            below is a dedicated workspace for one role. The landlord
-            compliance tracker and investor opportunity finder are live
-            today — agents and developers are still being built. The area
-            intelligence, comparison tool and reports that feed them
-            already are.
+            below is a dedicated workspace for one role. Landlord,
+            investor and agent tools are live today — developer is still
+            being built. The area intelligence, comparison tool and
+            reports that feed them already are.
           </p>
         </div>
       </section>

@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   },
   description:
     "Score any UK postcode across 24 data dimensions. Area intelligence, yield analysis, and market data for landlords, investors, agents and developers.",
+  alternates: {
+    types: {
+      "application/rss+xml": [{ url: "/feed.xml", title: "Realvian — UK Property Market Reports" }],
+    },
+  },
   keywords: [
     "UK property data",
     "area intelligence",
