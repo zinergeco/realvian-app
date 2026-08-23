@@ -6,7 +6,7 @@ import { IlloPortfolio, IlloAlerts, IlloMap, IlloDataFusion } from "@/components
 export const metadata: Metadata = {
   title: "Portals for Landlords, Investors, Agents & Developers",
   description:
-    "Dedicated workspaces for landlords, investors, agents and developers. The landlord compliance tracker is live — see what's coming for the rest.",
+    "Dedicated workspaces for landlords, investors, agents and developers. Two are live — see what's coming for the rest.",
   alternates: { canonical: "/portals" },
 };
 
@@ -21,9 +21,9 @@ const PORTALS = [
   {
     type: "investor",
     name: "Investors",
-    desc: "Off-market deal flow, yield forecasts, and hot-spot maps built on demand signals.",
+    desc: "Rank every area by gross yield, growth or investment score, filtered to your budget.",
     illo: IlloMap,
-    live: false,
+    live: true,
   },
   {
     type: "agent",
@@ -69,9 +69,9 @@ export default function PortalsHubPage() {
             Landlords, investors, agents and developers all read the same
             underlying data, but need to act on it differently. Each portal
             below is a dedicated workspace for one role. The landlord
-            compliance tracker is live today — the other three are still
-            being built. The area intelligence, comparison tool and reports
-            that feed them
+            compliance tracker and investor opportunity finder are live
+            today — agents and developers are still being built. The area
+            intelligence, comparison tool and reports that feed them
             already are.
           </p>
         </div>
@@ -107,7 +107,7 @@ export default function PortalsHubPage() {
                     className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium transition-transform duration-300 group-hover:translate-x-1"
                     style={{ color: "var(--primary)" }}
                   >
-                    See what's planned →
+                    {p.live ? "Open the tool" : "See what's planned"} →
                   </span>
                 </div>
               </Card>

@@ -11,17 +11,10 @@ const PORTALS: Record<
   // ahead of this dynamic [type] segment for the exact same path). Keeping
   // a second, unreachable "landlord" entry here would just be confusing
   // dead content generating a phantom static path.
-  investor: {
-    name: "Investor portal",
-    description:
-      "Built for people evaluating where to put capital, not just one property. Surfaces opportunity across areas rather than one listing at a time.",
-    bullets: [
-      "Yield and growth forecasts by area, not just by listing",
-      "Off-market deal flow as partnerships come online",
-      "Hot-spot maps built from demand signals, not just historic price data",
-      "Portfolio-level return tracking across multiple properties",
-    ],
-  },
+  // "investor" deliberately not listed here — it has its own real page
+  // at app/portals/investor/page.tsx (a static route, which Next.js
+  // resolves ahead of this dynamic [type] segment for the exact same
+  // path), same reasoning as the "landlord" exclusion above.
   agent: {
     name: "Agent portal",
     description:
