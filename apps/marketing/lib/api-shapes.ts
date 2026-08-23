@@ -8,6 +8,7 @@
  */
 
 import { type Area, isLiveData, hasLiveGeography } from "./areas";
+import type { BlogPost } from "./blog";
 
 export type DataStatus = "dimensions-live" | "geography-live" | "illustrative";
 
@@ -71,6 +72,32 @@ export function toAreaDetail(area: Area): AreaDetailResponse {
     highlights: area.highlights,
     watchouts: area.watchouts,
     lastRefreshedAt: area.lastRefreshedAt,
+  };
+}
+
+export interface PostSummaryResponse {
+  slug: string;
+  kind: string;
+  title: string;
+  description: string;
+  excerpt: string;
+  dataDate: string;
+  readMinutes: number;
+  tags: string[];
+  areaSlugs: string[];
+}
+
+export function toPostSummary(post: BlogPost): PostSummaryResponse {
+  return {
+    slug: post.slug,
+    kind: post.kind,
+    title: post.title,
+    description: post.description,
+    excerpt: post.excerpt,
+    dataDate: post.dataDate,
+    readMinutes: post.readMinutes,
+    tags: post.tags,
+    areaSlugs: post.areaSlugs,
   };
 }
 

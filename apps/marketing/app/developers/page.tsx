@@ -130,6 +130,14 @@ export default function DevelopersPage() {
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas/didsbury-m20`}</CodeBlock>
         </Endpoint>
 
+        <Endpoint
+          method="GET"
+          path="/api/v1/reports"
+          description="List every market report on the site — metadata only (title, description, tags, which areas it covers), not the full article body. Supports optional area and kind filters. Visit the linked slug on realvian.co.uk for the full report."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/reports?area=didsbury-m20`}</CodeBlock>
+        </Endpoint>
+
         <h2
           className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
           style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
