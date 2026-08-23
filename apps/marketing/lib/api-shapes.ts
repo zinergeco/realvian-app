@@ -61,6 +61,38 @@ export function toAreaSummary(area: Area): AreaSummaryResponse {
   };
 }
 
+const CSV_COLUMNS: (keyof AreaSummaryResponse)[] = [
+  "slug",
+  "district",
+  "city",
+  "region",
+  "outcode",
+  "realvianScore",
+  "investmentScore",
+  "avgPrice",
+  "avgRent",
+  "grossYield",
+  "fiveYearGrowth",
+  "dataStatus",
+];
+
+function csvEscape(value: string | number): string {
+  const s = String(value);
+  // Only quote when necessary — a comma, quote, or newline inside the
+  // value would otherwise break column alignment for a spreadsheet.
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+/** Same data as the JSON endpoint, reshaped for a B2B/spreadsheet
+ * audience that wants to open it directly in Excel or Sheets rather
+ * than write code against JSON. */
+export function areasToCsv(areas: AreaSummaryResponse[]): string {
+  const header = CSV_COLUMNS.join(",");
+  const rows = areas.map((a) => CSV_COLUMNS.map((col) => csvEscape(a[col])).join(","));
+  return [header, ...rows].join("\r\n");
+}
+
 export function toAreaDetail(area: Area): AreaDetailResponse {
   return {
     ...toAreaSummary(area),

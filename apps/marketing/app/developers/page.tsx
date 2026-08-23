@@ -97,7 +97,7 @@ export default function DevelopersPage() {
         <Endpoint
           method="GET"
           path="/api/v1/areas"
-          description="List every area Realvian covers. Supports optional city and region filters."
+          description="List every area Realvian covers. Supports optional city and region filters, and format=csv for a spreadsheet-ready download instead of JSON."
         >
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas?city=Manchester`}</CodeBlock>
           <p className="text-[13px] text-[var(--text-muted)] mt-3 mb-1.5">Response</p>
@@ -120,6 +120,8 @@ export default function DevelopersPage() {
   ],
   "meta": { "count": 4, "generatedAt": "2026-08-22T12:00:00.000Z" }
 }`}</CodeBlock>
+          <p className="text-[13px] text-[var(--text-muted)] mt-3 mb-1.5">Or as CSV, for Excel/Sheets</p>
+          <CodeBlock>{`curl -O -J https://realvian.co.uk/api/v1/areas?format=csv`}</CodeBlock>
         </Endpoint>
 
         <Endpoint
