@@ -14,6 +14,13 @@ function strOrNull(formData: FormData, key: string): string | null {
   return v || null;
 }
 
+function numOrNull(formData: FormData, key: string): number | null {
+  const v = String(formData.get(key) ?? "").trim();
+  if (!v) return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
 export async function addPropertyAction(
   _prev: PropertyActionState | undefined,
   formData: FormData,
@@ -34,6 +41,7 @@ export async function addPropertyAction(
     epcExpiry: strOrNull(formData, "epcExpiry"),
     gasSafetyExpiry: strOrNull(formData, "gasSafetyExpiry"),
     eicrExpiry: strOrNull(formData, "eicrExpiry"),
+    currentRent: numOrNull(formData, "currentRent"),
     notes: strOrNull(formData, "notes"),
   });
 
@@ -58,6 +66,7 @@ export async function updatePropertyDatesAction(
     epcExpiry: strOrNull(formData, "epcExpiry"),
     gasSafetyExpiry: strOrNull(formData, "gasSafetyExpiry"),
     eicrExpiry: strOrNull(formData, "eicrExpiry"),
+    currentRent: numOrNull(formData, "currentRent"),
   });
 
   if (!ok) return { error: "Could not update — that property may not exist." };

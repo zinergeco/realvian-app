@@ -4,6 +4,12 @@
 
 import { toOutcode, resolveGeography } from "./monetisation";
 import { getAllAreas } from "./areas";
+import { compareRentToArea, type RentComparison } from "./rent-comparison";
+
+// Re-exported so existing server-side imports of these from this file
+// keep working — client components should import from
+// rent-comparison.ts directly instead, to avoid pulling in postgres.
+export { compareRentToArea, type RentComparison };
 
 export interface Property {
   id: string;
@@ -15,6 +21,7 @@ export interface Property {
   epcExpiry: string | null; // ISO date
   gasSafetyExpiry: string | null;
   eicrExpiry: string | null;
+  currentRent: number | null; // £/month, self-reported by the landlord
   notes: string | null;
   createdAt: string;
 }
@@ -103,6 +110,7 @@ function parseDbProperty(r: Record<string, unknown>): Property {
       ? new Date(r.gas_safety_expiry as string).toISOString().slice(0, 10)
       : null,
     eicrExpiry: r.eicr_expiry ? new Date(r.eicr_expiry as string).toISOString().slice(0, 10) : null,
+    currentRent: r.current_rent !== null && r.current_rent !== undefined ? Number(r.current_rent) : null,
     notes: r.notes ? String(r.notes) : null,
     createdAt: (r.created_at as Date).toISOString(),
   };
@@ -114,7 +122,7 @@ export async function listProperties(userId: string): Promise<Property[]> {
     try {
       const rows = await sql<Record<string, unknown>[]>`
         SELECT id, nickname, postcode, outcode, city, epc_rating, epc_expiry,
-               gas_safety_expiry, eicr_expiry, notes, created_at
+               gas_safety_expiry, eicr_expiry, current_rent, notes, created_at
         FROM properties
         WHERE user_id = ${userId}::uuid
         ORDER BY created_at DESC
@@ -136,6 +144,7 @@ export interface AddPropertyInput {
   epcExpiry: string | null;
   gasSafetyExpiry: string | null;
   eicrExpiry: string | null;
+  currentRent: number | null;
   notes: string | null;
 }
 
@@ -154,12 +163,12 @@ export async function addProperty(
       await sql`
         INSERT INTO properties
           (user_id, nickname, postcode, outcode, city, region,
-           epc_rating, epc_expiry, gas_safety_expiry, eicr_expiry, notes)
+           epc_rating, epc_expiry, gas_safety_expiry, eicr_expiry, current_rent, notes)
         VALUES
           (${userId}::uuid, ${input.nickname}, ${input.postcode.toUpperCase()}, ${outcode},
            ${geo?.city ?? null}, ${geo?.region ?? null},
            ${input.epcRating}, ${input.epcExpiry}, ${input.gasSafetyExpiry}, ${input.eicrExpiry},
-           ${input.notes})
+           ${input.currentRent}, ${input.notes})
       `;
       return { ok: true };
     } finally {
@@ -175,7 +184,7 @@ export async function addProperty(
 export async function updatePropertyDates(
   userId: string,
   propertyId: string,
-  input: Pick<AddPropertyInput, "epcRating" | "epcExpiry" | "gasSafetyExpiry" | "eicrExpiry">,
+  input: Pick<AddPropertyInput, "epcRating" | "epcExpiry" | "gasSafetyExpiry" | "eicrExpiry" | "currentRent">,
 ): Promise<boolean> {
   try {
     const sql = await db();
@@ -186,6 +195,7 @@ export async function updatePropertyDates(
           epc_expiry = ${input.epcExpiry},
           gas_safety_expiry = ${input.gasSafetyExpiry},
           eicr_expiry = ${input.eicrExpiry},
+          current_rent = ${input.currentRent},
           updated_at = now()
         WHERE id = ${propertyId}::uuid AND user_id = ${userId}::uuid
       `;

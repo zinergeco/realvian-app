@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { PropertyWithUrgency, UrgencyLevel } from "@/lib/properties";
 import { updatePropertyDatesAction, deletePropertyAction } from "@/lib/property-actions";
+import type { PropertyWithUrgency, UrgencyLevel } from "@/lib/properties";
+import { compareRentToArea } from "@/lib/rent-comparison";
 import { Badge, Card } from "@/components/ui";
 import { Alert, Field, SelectField, SubmitButton } from "@/components/admin-ui";
 
@@ -47,6 +48,7 @@ function DateRow({ label, date, isNext }: { label: string; date: string | null; 
 export function PropertyCard({ property: p }: { property: PropertyWithUrgency }) {
   const [editing, setEditing] = useState(false);
   const [updateState, updateAction] = useActionState(updatePropertyDatesAction, {});
+  const rentComparison = compareRentToArea(p.outcode, p.currentRent);
 
   return (
     <Card className="p-5">
@@ -83,6 +85,23 @@ export function PropertyCard({ property: p }: { property: PropertyWithUrgency })
             <DateRow label="Gas safety" date={p.gasSafetyExpiry} isNext={p.nextDeadline?.label === "Gas safety"} />
             <DateRow label="EICR" date={p.eicrExpiry} isNext={p.nextDeadline?.label === "EICR"} />
           </div>
+          {rentComparison && (
+            <div className="flex items-center justify-between py-2 mt-1 border-t border-[var(--border)]">
+              <span className="text-[13px] text-[var(--text-muted)]">
+                Rent vs. {rentComparison.dataStatus === "illustrative" ? "estimated" : "live"} area avg
+              </span>
+              <span
+                className="text-[13px] font-medium"
+                style={{
+                  color:
+                    rentComparison.diffPct >= 0 ? "var(--primary)" : "var(--color-gold)",
+                }}
+              >
+                {rentComparison.diffPct >= 0 ? "+" : ""}
+                {rentComparison.diffPct}% ({new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(rentComparison.areaAvgRent)} avg)
+              </span>
+            </div>
+          )}
           {p.notes && (
             <p className="text-[12.5px] text-[var(--text-secondary)] mt-2.5 pt-2.5 border-t border-[var(--border)]">
               {p.notes}
@@ -105,6 +124,13 @@ export function PropertyCard({ property: p }: { property: PropertyWithUrgency })
           <Field label="EPC expiry" name="epcExpiry" type="date" defaultValue={p.epcExpiry ?? ""} />
           <Field label="Gas safety expiry" name="gasSafetyExpiry" type="date" defaultValue={p.gasSafetyExpiry ?? ""} />
           <Field label="EICR expiry" name="eicrExpiry" type="date" defaultValue={p.eicrExpiry ?? ""} />
+          <Field
+            label="Current monthly rent"
+            name="currentRent"
+            type="number"
+            defaultValue={p.currentRent !== null ? String(p.currentRent) : ""}
+            hint="Optional — shown against the area average"
+          />
           <div className="flex gap-2">
             <SubmitButton pendingLabel="Saving…">Save</SubmitButton>
             <button

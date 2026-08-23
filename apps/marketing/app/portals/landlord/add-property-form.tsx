@@ -36,6 +36,13 @@ export function AddPropertyForm() {
       <Field label="EPC expiry" name="epcExpiry" type="date" />
       <Field label="Gas safety expiry" name="gasSafetyExpiry" type="date" hint="Leave blank if no gas appliances" />
       <Field label="EICR expiry" name="eicrExpiry" type="date" />
+      <Field
+        label="Current monthly rent"
+        name="currentRent"
+        type="number"
+        placeholder="1200"
+        hint="Optional — shown against the area average"
+      />
       <Field label="Notes" name="notes" rows={2} placeholder="Optional" />
 
       <SubmitButton pendingLabel="Adding…" className="w-full">

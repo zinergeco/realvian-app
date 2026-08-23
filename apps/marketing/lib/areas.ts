@@ -1165,6 +1165,11 @@ export function getAreaBySlug(slug: string): Area | undefined {
   return found ? mergeLive(found) : undefined;
 }
 
+export function getAreaByOutcode(outcode: string): Area | undefined {
+  const found = AREAS.find((a) => a.outcode.toUpperCase() === outcode.toUpperCase());
+  return found ? mergeLive(found) : undefined;
+}
+
 export function getAreasByCity(city: string): Area[] {
   return AREAS.filter((a) => a.city.toLowerCase() === city.toLowerCase()).map(mergeLive);
 }
