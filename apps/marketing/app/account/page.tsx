@@ -239,6 +239,28 @@ export default async function AccountPage() {
         </div>
       </Card>
 
+      <Card className="p-6 mb-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-1.5" style={{ color: "var(--primary)" }}>
+              Your data
+            </h2>
+            <p className="text-[14px] text-[var(--text-secondary)]">
+              Download everything stored against your account — saved
+              comparisons, followed areas, and your property watchlist —
+              as a single JSON file.
+            </p>
+          </div>
+          <a
+            href="/account/export"
+            className="text-[13px] font-medium shrink-0"
+            style={{ color: "var(--primary)" }}
+          >
+            Download →
+          </a>
+        </div>
+      </Card>
+
       <div className="flex flex-wrap gap-3">
         <Link href="/areas">
           <Button variant="primary">Explore areas</Button>
