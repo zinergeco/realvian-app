@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllPosts } from "@/lib/blog";
-import { toPostSummary, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toPostSummary, paginate, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -16,15 +16,18 @@ export async function GET(request: Request) {
     posts = posts.filter((p) => p.kind === kind);
   }
 
-  const data = [...posts]
+  const allData = [...posts]
     .sort((a, b) => new Date(b.dataDate).getTime() - new Date(a.dataDate).getTime())
     .map(toPostSummary);
 
+  const { page, meta } = paginate(allData, searchParams);
+
   return NextResponse.json(
     {
-      data,
+      data: page,
       meta: {
-        count: data.length,
+        count: meta.total, // backward-compatible alias, see areas/route.ts
+        ...meta,
         generatedAt: new Date().toISOString(),
       },
     },

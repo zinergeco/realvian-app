@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllAreas } from "@/lib/areas";
-import { toAreaSummary, areasToCsv, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toAreaSummary, areasToCsv, paginate, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -19,10 +19,12 @@ export async function GET(request: Request) {
     areas = areas.filter((a) => a.region.toLowerCase() === region.toLowerCase());
   }
 
-  const data = areas.map(toAreaSummary);
+  const allData = areas.map(toAreaSummary);
 
   if (format === "csv") {
-    return new NextResponse(areasToCsv(data), {
+    // Deliberately unpaginated — a CSV download implies wanting the
+    // full dataset, not a single page of it.
+    return new NextResponse(areasToCsv(allData), {
       headers: {
         ...API_CORS_HEADERS,
         "Content-Type": "text/csv; charset=utf-8",
@@ -32,11 +34,17 @@ export async function GET(request: Request) {
     });
   }
 
+  const { page, meta } = paginate(allData, searchParams);
+
   return NextResponse.json(
     {
-      data,
+      data: page,
       meta: {
-        count: data.length,
+        // count kept as an alias for total — the original documented
+        // shape had only this field; don't silently break an early
+        // adopter's `data.meta.count` just because pagination is new.
+        count: meta.total,
+        ...meta,
         generatedAt: new Date().toISOString(),
       },
     },

@@ -133,6 +133,47 @@ export function toPostSummary(post: BlogPost): PostSummaryResponse {
   };
 }
 
+export interface PaginationMeta {
+  limit: number;
+  offset: number;
+  total: number;
+  hasMore: boolean;
+}
+
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 100;
+
+/**
+ * Shared pagination for every list endpoint. One implementation means
+ * one place to get the edge cases right — negative offsets, a limit
+ * above the cap, a non-numeric query param — rather than each route
+ * reinventing (and potentially mis-handling) the same logic.
+ */
+export function paginate<T>(
+  items: T[],
+  searchParams: URLSearchParams,
+): { page: T[]; meta: PaginationMeta } {
+  const rawLimit = Number(searchParams.get("limit"));
+  const rawOffset = Number(searchParams.get("offset"));
+
+  const limit = Number.isFinite(rawLimit) && rawLimit > 0
+    ? Math.min(Math.floor(rawLimit), MAX_LIMIT)
+    : DEFAULT_LIMIT;
+  const offset = Number.isFinite(rawOffset) && rawOffset > 0 ? Math.floor(rawOffset) : 0;
+
+  const page = items.slice(offset, offset + limit);
+
+  return {
+    page,
+    meta: {
+      limit,
+      offset,
+      total: items.length,
+      hasMore: offset + limit < items.length,
+    },
+  };
+}
+
 /** CORS: deliberately public. This is read-only, non-personal data —
  * safe to allow any origin, unlike the account/admin surfaces. */
 export const API_CORS_HEADERS = {

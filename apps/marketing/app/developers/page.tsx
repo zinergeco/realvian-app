@@ -148,6 +148,32 @@ export default function DevelopersPage() {
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/compare?a=didsbury-m20&b=chorlton-m21`}</CodeBlock>
         </Endpoint>
 
+        <Endpoint
+          method="GET"
+          path="/api/v1/areas/batch"
+          description="Full detail for up to 50 specific areas in one request, instead of one call per area. Partial success by design — an unknown slug is reported in meta.notFound rather than failing the whole request."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas/batch?slugs=didsbury-m20,chorlton-m21`}</CodeBlock>
+          <p className="text-[13px] text-[var(--text-muted)] mt-3 mb-1.5">meta shape</p>
+          <CodeBlock>{`{ "requested": 2, "found": 2, "notFound": [], "generatedAt": "..." }`}</CodeBlock>
+        </Endpoint>
+
+        <Endpoint
+          method="GET"
+          path="/api/v1/lookup"
+          description="Resolve any UK postcode or outcode to its Realvian area, if we cover it. Falls back to city/region from a neighbouring covered outcode when the exact one isn't in our dataset yet, same logic the listing and watchlist forms use."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/lookup?postcode=M20+2RN`}</CodeBlock>
+        </Endpoint>
+
+        <Endpoint
+          method="GET"
+          path="/api/v1/status"
+          description="API health and honest data-coverage numbers — how many of our areas currently have live liveability dimensions versus live geography only versus fully illustrative data. Useful for monitoring, and for knowing how much of the dataset to trust today."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/status`}</CodeBlock>
+        </Endpoint>
+
         <h2
           className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
           style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
@@ -178,6 +204,22 @@ export default function DevelopersPage() {
             </li>
           ))}
         </ul>
+
+        <h2
+          className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
+        >
+          Pagination
+        </h2>
+        <p className="text-[14.5px] leading-relaxed text-[var(--text-secondary)] mb-4">
+          <code style={{ fontFamily: "var(--font-mono)" }}>/api/v1/areas</code> and{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>/api/v1/reports</code> accept{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>limit</code> (default 50, max 100) and{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>offset</code> query params. Every paginated
+          response includes a <code style={{ fontFamily: "var(--font-mono)" }}>meta.hasMore</code>{" "}
+          boolean — page until it's false rather than guessing from the total.
+        </p>
+        <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas?limit=10&offset=10`}</CodeBlock>
 
         <h2
           className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
