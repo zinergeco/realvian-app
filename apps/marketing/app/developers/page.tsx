@@ -140,6 +140,14 @@ export default function DevelopersPage() {
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/reports?area=didsbury-m20`}</CodeBlock>
         </Endpoint>
 
+        <Endpoint
+          method="GET"
+          path="/api/v1/compare"
+          description="Full detail for two areas side by side in a single request — the same data the public comparison tool uses. Requires both ?a= and ?b= slugs. Returns 400 if either is missing, 404 if either slug doesn't exist."
+        >
+          <CodeBlock>{`curl https://realvian.co.uk/api/v1/compare?a=didsbury-m20&b=chorlton-m21`}</CodeBlock>
+        </Endpoint>
+
         <h2
           className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
           style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
