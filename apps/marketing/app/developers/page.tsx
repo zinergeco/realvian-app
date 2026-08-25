@@ -110,6 +110,11 @@ export default function DevelopersPage() {
         >
           Endpoints
         </h2>
+        <p className="text-[13.5px] text-[var(--text-secondary)] mb-6">
+          Prefer to generate a client, or import into Postman/Insomnia?
+          Full <a href="/api/v1/openapi.json" style={{ color: "var(--primary)" }}>OpenAPI 3.0 spec</a>{" "}
+          covering every endpoint below.
+        </p>
 
         <Endpoint
           method="GET"
