@@ -70,7 +70,8 @@ export default function DevelopersPage() {
           <p className="text-[16px] leading-[1.65] text-[var(--text-secondary)] max-w-[600px]">
             Read-only JSON access to the same area data that powers
             realvian.co.uk — scores, prices, yields and the six liveability
-            dimensions for every area we cover. No API key required yet.
+            dimensions for every area we cover. Free, with an optional API
+            key for a higher rate limit.
           </p>
         </div>
       </section>
@@ -79,11 +80,27 @@ export default function DevelopersPage() {
         <Card className="p-5 mb-8">
           <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
             <strong className="text-[var(--text-primary)]">Beta status, honestly stated:</strong>{" "}
-            this API is public and free with no authentication or rate
-            limiting implemented yet — reasonable use is fine, but don't
-            build production infrastructure that assumes today's behaviour
-            is permanent. API keys and published rate limits are planned
-            once usage justifies them.
+            this API is public and free. Every endpoint is rate-limited —
+            30 requests/minute for unauthenticated callers, 120/minute with
+            a free API key from your account. The limiter is a single
+            in-memory counter, not a distributed one: it resets on every
+            deploy, and if this service ever runs as more than one
+            instance the limit is enforced per-instance, not globally.
+            Reasonable for where this project is today; don't build
+            infrastructure that assumes today's exact numbers are
+            permanent.
+          </p>
+        </Card>
+
+        <Card className="p-5 mb-8">
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+            <strong className="text-[var(--text-primary)]">API keys:</strong>{" "}
+            generate one free from your{" "}
+            <a href="/account" style={{ color: "var(--primary)" }}>account page</a> — no
+            billing, no approval step. Send it as{" "}
+            <code style={{ fontFamily: "var(--font-mono)" }}>Authorization: Bearer rv_...</code>{" "}
+            on any request. The raw key is shown once at generation and never stored — if you lose
+            it, revoke it and generate a new one.
           </p>
         </Card>
 
@@ -204,6 +221,24 @@ export default function DevelopersPage() {
             </li>
           ))}
         </ul>
+
+        <h2
+          className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}
+        >
+          Authentication &amp; rate limits
+        </h2>
+        <p className="text-[14.5px] leading-relaxed text-[var(--text-secondary)] mb-4">
+          Every response carries <code style={{ fontFamily: "var(--font-mono)" }}>X-RateLimit-Limit</code>,{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>X-RateLimit-Remaining</code>, and{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>X-RateLimit-Reset</code> headers — check
+          these to self-throttle before hitting a 429. An exceeded limit
+          returns <code style={{ fontFamily: "var(--font-mono)" }}>429</code> with a{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>Retry-After</code> header telling you how
+          many seconds to wait.
+        </p>
+        <CodeBlock>{`curl -H "Authorization: Bearer rv_your_key_here" \\
+  https://realvian.co.uk/api/v1/areas`}</CodeBlock>
 
         <h2
           className="text-[22px] text-[var(--text-primary)] mb-4 mt-10"

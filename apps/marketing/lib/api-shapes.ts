@@ -133,6 +133,10 @@ export function toPostSummary(post: BlogPost): PostSummaryResponse {
   };
 }
 
+import { NextResponse } from "next/server";
+import { validateApiKey } from "./api-keys";
+import { checkRateLimit, rateLimitHeaders } from "./rate-limit";
+
 export interface PaginationMeta {
   limit: number;
   offset: number;
@@ -181,3 +185,46 @@ export const API_CORS_HEADERS = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
+
+/**
+ * Call once at the top of every v1 route handler. Resolves the caller
+ * (API key if supplied and valid, otherwise IP address), checks the
+ * rate limit, and returns either the headers to attach to a normal
+ * response or a ready-to-return 429. One implementation so every
+ * route enforces this identically rather than seven near-copies
+ * drifting apart over time.
+ */
+export async function enforceRateLimit(
+  request: Request,
+): Promise<{ ok: true; headers: Record<string, string> } | { ok: false; response: NextResponse }> {
+  const authHeader = request.headers.get("authorization");
+  const suppliedKey = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+
+  const hasApiKey = suppliedKey ? await validateApiKey(suppliedKey) : false;
+
+  // x-forwarded-for can carry a comma-separated chain through
+  // multiple proxies; the first entry is the original client.
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const ip = forwardedFor?.split(",")[0]?.trim() ?? "unknown";
+  const identifier = hasApiKey ? `key:${suppliedKey}` : `ip:${ip}`;
+
+  const result = checkRateLimit(identifier, hasApiKey);
+  const headers = { ...API_CORS_HEADERS, ...rateLimitHeaders(result) };
+
+  if (!result.allowed) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        {
+          error: "rate_limited",
+          message: hasApiKey
+            ? `Rate limit exceeded: ${result.limit} requests/minute for this API key.`
+            : `Rate limit exceeded: ${result.limit} requests/minute for unauthenticated callers. Generate a free API key from your account for a higher limit.`,
+        },
+        { status: 429, headers: { ...headers, "Retry-After": String(Math.ceil((result.resetAt - Date.now()) / 1000)) } },
+      ),
+    };
+  }
+
+  return { ok: true, headers };
+}

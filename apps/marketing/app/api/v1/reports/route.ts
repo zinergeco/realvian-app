@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAllPosts } from "@/lib/blog";
-import { toPostSummary, paginate, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toPostSummary, paginate, enforceRateLimit, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 export async function GET(request: Request) {
+  const limitCheck = await enforceRateLimit(request);
+  if (!limitCheck.ok) return limitCheck.response;
+
   const { searchParams } = new URL(request.url);
   const areaSlug = searchParams.get("area");
   const kind = searchParams.get("kind");
@@ -26,14 +29,14 @@ export async function GET(request: Request) {
     {
       data: page,
       meta: {
-        count: meta.total, // backward-compatible alias, see areas/route.ts
+        count: meta.total,
         ...meta,
         generatedAt: new Date().toISOString(),
       },
     },
     {
       headers: {
-        ...API_CORS_HEADERS,
+        ...limitCheck.headers,
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
       },
     },

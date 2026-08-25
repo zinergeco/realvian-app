@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
 import { getAreaBySlug } from "@/lib/areas";
-import { toAreaDetail, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toAreaDetail, enforceRateLimit, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
+  const limitCheck = await enforceRateLimit(request);
+  if (!limitCheck.ok) return limitCheck.response;
+
   const { slug } = await params;
   const area = getAreaBySlug(slug);
 
   if (!area) {
     return NextResponse.json(
       { error: "not_found", message: `No area found for slug "${slug}".` },
-      { status: 404, headers: API_CORS_HEADERS },
+      { status: 404, headers: limitCheck.headers },
     );
   }
 
@@ -20,7 +23,7 @@ export async function GET(
     { data: toAreaDetail(area) },
     {
       headers: {
-        ...API_CORS_HEADERS,
+        ...limitCheck.headers,
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
       },
     },

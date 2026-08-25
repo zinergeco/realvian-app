@@ -8,6 +8,10 @@ import { API_CORS_HEADERS } from "@/lib/api-shapes";
  * transparency, the same honesty the dataStatus field on every area
  * already carries, just summarised for anyone building against this
  * API who wants to know how much of it is real right now.
+ *
+ * Deliberately NOT rate-limited, unlike every other v1 route — a
+ * monitoring system polling this every 30 seconds is exactly the
+ * intended use, and blocking that would defeat the endpoint's purpose.
  */
 export async function GET() {
   const areas = getAllAreas();

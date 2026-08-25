@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
 import { getAreaByOutcode, getAllAreas } from "@/lib/areas";
 import { toOutcode, resolveGeography } from "@/lib/monetisation";
-import { toAreaDetail, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toAreaDetail, enforceRateLimit, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 export async function GET(request: Request) {
+  const limitCheck = await enforceRateLimit(request);
+  if (!limitCheck.ok) return limitCheck.response;
+
   const { searchParams } = new URL(request.url);
   const postcode = searchParams.get("postcode");
 
   if (!postcode) {
     return NextResponse.json(
       { error: "missing_params", message: "Provide ?postcode= (full postcode or outcode)." },
-      { status: 400, headers: API_CORS_HEADERS },
+      { status: 400, headers: limitCheck.headers },
     );
   }
 
@@ -18,7 +21,7 @@ export async function GET(request: Request) {
   if (!outcode) {
     return NextResponse.json(
       { error: "invalid_postcode", message: `"${postcode}" doesn't look like a valid UK postcode or outcode.` },
-      { status: 400, headers: API_CORS_HEADERS },
+      { status: 400, headers: limitCheck.headers },
     );
   }
 
@@ -42,7 +45,7 @@ export async function GET(request: Request) {
     },
     {
       headers: {
-        ...API_CORS_HEADERS,
+        ...limitCheck.headers,
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
       },
     },

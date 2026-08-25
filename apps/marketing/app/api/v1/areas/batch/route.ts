@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import { getAreaBySlug } from "@/lib/areas";
-import { toAreaDetail, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toAreaDetail, enforceRateLimit, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 const MAX_SLUGS = 50;
 
 export async function GET(request: Request) {
+  const limitCheck = await enforceRateLimit(request);
+  if (!limitCheck.ok) return limitCheck.response;
+
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get("slugs");
 
   if (!raw) {
     return NextResponse.json(
       { error: "missing_params", message: "Provide ?slugs= as a comma-separated list of area slugs." },
-      { status: 400, headers: API_CORS_HEADERS },
+      { status: 400, headers: limitCheck.headers },
     );
   }
 
@@ -23,14 +26,14 @@ export async function GET(request: Request) {
   if (slugs.length === 0) {
     return NextResponse.json(
       { error: "missing_params", message: "No valid slugs found in ?slugs=." },
-      { status: 400, headers: API_CORS_HEADERS },
+      { status: 400, headers: limitCheck.headers },
     );
   }
 
   if (slugs.length > MAX_SLUGS) {
     return NextResponse.json(
       { error: "too_many_slugs", message: `Request at most ${MAX_SLUGS} slugs per batch. Got ${slugs.length}.` },
-      { status: 400, headers: API_CORS_HEADERS },
+      { status: 400, headers: limitCheck.headers },
     );
   }
 
@@ -62,7 +65,7 @@ export async function GET(request: Request) {
     },
     {
       headers: {
-        ...API_CORS_HEADERS,
+        ...limitCheck.headers,
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
       },
     },

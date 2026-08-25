@@ -8,6 +8,8 @@ import { listUserComparisons } from "@/lib/comparisons";
 import { unfollowAreaFormAction } from "@/lib/followed-area-actions";
 import { listFollowedAreas } from "@/lib/followed-areas";
 import { getAreaBySlug } from "@/lib/areas";
+import { listApiKeys } from "@/lib/api-keys";
+import { ApiKeysSection } from "./api-keys-section";
 import { Badge, Card, SectionLabel, Button } from "@/components/ui";
 import { ScoreRing } from "@/components/area-viz";
 
@@ -49,6 +51,7 @@ export default async function AccountPage() {
     );
 
   const followed = await listFollowedAreas(user.id);
+  const apiKeys = await listApiKeys(user.id);
   const followedWithAreas = followed
     .map((f) => ({ ...f, area: getAreaBySlug(f.areaSlug) }))
     .filter((f): f is typeof f & { area: NonNullable<typeof f.area> } => Boolean(f.area));
@@ -260,6 +263,8 @@ export default async function AccountPage() {
           </a>
         </div>
       </Card>
+
+      <ApiKeysSection keys={apiKeys} />
 
       <div className="flex flex-wrap gap-3">
         <Link href="/areas">

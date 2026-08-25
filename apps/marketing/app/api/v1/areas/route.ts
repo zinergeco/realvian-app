@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAllAreas } from "@/lib/areas";
-import { toAreaSummary, areasToCsv, paginate, API_CORS_HEADERS } from "@/lib/api-shapes";
+import { toAreaSummary, areasToCsv, paginate, enforceRateLimit, API_CORS_HEADERS } from "@/lib/api-shapes";
 
 export async function GET(request: Request) {
+  const limitCheck = await enforceRateLimit(request);
+  if (!limitCheck.ok) return limitCheck.response;
+
   const { searchParams } = new URL(request.url);
   const city = searchParams.get("city");
   const region = searchParams.get("region");
@@ -26,7 +29,7 @@ export async function GET(request: Request) {
     // full dataset, not a single page of it.
     return new NextResponse(areasToCsv(allData), {
       headers: {
-        ...API_CORS_HEADERS,
+        ...limitCheck.headers,
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": 'attachment; filename="realvian-areas.csv"',
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
@@ -50,7 +53,7 @@ export async function GET(request: Request) {
     },
     {
       headers: {
-        ...API_CORS_HEADERS,
+        ...limitCheck.headers,
         // Public, cacheable data — safe to let CDNs/browsers cache
         // briefly rather than hit the server on every request.
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
