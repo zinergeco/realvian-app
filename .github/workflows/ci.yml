@@ -38,10 +38,33 @@ jobs:
       # 20 seconds locally, well before the slower full build step below.
       - run: pnpm run typecheck
 
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Pure-function tests only — calculators, rate limiting,
+      # pagination, postcode resolution, OpenAPI spec validity. No
+      # database, no network, so this runs in a couple of seconds and
+      # needs no environment configuration.
+      - run: pnpm run test
+
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: typecheck
+    needs: [typecheck, test]
     steps:
       - uses: actions/checkout@v4
 
