@@ -33,6 +33,34 @@ test.describe("Portals", () => {
     expect(after).toBeLessThanOrEqual(before);
   });
 
+  test("shows a yield-vs-price scatter plot with one point per matching area", async ({ page }) => {
+    await page.goto("/portals/investor");
+    await page.waitForTimeout(1000);
+
+    // 38 real covered areas, no filters applied yet.
+    const dots = await page.locator(".recharts-scatter-symbol").count();
+    expect(dots).toBe(38);
+  });
+
+  test("the scatter plot stays genuinely in sync with the filtered list, not a separate static chart", async ({ page }) => {
+    await page.goto("/portals/investor");
+    await page.waitForTimeout(1000);
+
+    const yieldInput = page.getByLabel(/min.*yield/i);
+    await yieldInput.fill("7");
+    await yieldInput.blur();
+    await page.waitForTimeout(500);
+
+    const matchText = await page.locator("text=/\\d+ areas? match/").first().textContent();
+    const listCount = Number(matchText?.match(/\d+/)?.[0]);
+
+    const dots = await page.locator(".recharts-scatter-symbol").count();
+    // The whole point of this chart is that it reads the same filtered
+    // state as the list below it — this is the test that would catch
+    // it silently drifting into a separate, unfiltered data source.
+    expect(dots).toBe(listCount);
+  });
+
   test("the developer portal correctly shows as coming-soon, not fabricated as live", async ({ page }) => {
     const response = await page.goto("/portals/developer");
     expect(response?.status()).toBe(200);

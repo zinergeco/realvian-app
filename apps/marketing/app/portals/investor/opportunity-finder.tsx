@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Area } from "@/lib/areas";
 import { Card, cx } from "@/components/ui";
 import { ScoreRing } from "@/components/area-viz";
+import { YieldPriceScatter } from "@/components/yield-price-scatter";
 
 type SortKey = "investmentScore" | "grossYield" | "fiveYearGrowth" | "avgPrice";
 
@@ -111,6 +112,15 @@ export function OpportunityFinder({ areas }: { areas: Area[] }) {
       <p className="text-[13px] text-[var(--text-muted)] mb-4">
         {filtered.length} area{filtered.length === 1 ? "" : "s"} match{filtered.length === 1 ? "es" : ""}
       </p>
+
+      {filtered.length > 0 && (
+        <Card className="p-5 mb-6">
+          <p className="text-[12.5px] text-[var(--text-muted)] mb-3">
+            Where each area sits on yield vs. price — top-left is the sweet spot
+          </p>
+          <YieldPriceScatter areas={filtered} />
+        </Card>
+      )}
 
       {/* ── Results ── */}
       <div className="space-y-2.5">
