@@ -10,6 +10,7 @@ import {
 import { AreaCard, DataNote } from "@/components/area-viz";
 import { Badge, Card, SectionLabel } from "@/components/ui";
 import { areasItemListSchema } from "@/lib/site-schema";
+import { AreaMapClient } from "@/components/area-map-client";
 
 export const metadata: Metadata = {
   title: "UK Area Guides — Property Data for Every Postcode",
@@ -92,6 +93,44 @@ export default function AreasHubPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ══════════ MAP ══════════ */}
+      <section className="border-b border-[var(--border)]">
+        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-14">
+          <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
+            <div>
+              <SectionLabel>Explore on the map</SectionLabel>
+              <h2
+                className="text-[var(--text-primary)]"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(24px, 3vw, 34px)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.025em",
+                  fontWeight: 300,
+                }}
+              >
+                Every area, where it actually is
+              </h2>
+            </div>
+            <div className="flex items-center gap-4 text-[12.5px] text-[var(--text-secondary)]">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#F2B134" }} />
+                Exceptional (88+)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#0EA672" }} />
+                Strong / Good (72+)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8A93A3" }} />
+                Mixed (&lt;72)
+              </span>
+            </div>
+          </div>
+          <AreaMapClient areas={areas} />
         </div>
       </section>
 

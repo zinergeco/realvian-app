@@ -35,7 +35,11 @@ function buildCsp(nonce: string): string {
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `img-src 'self' data:`,
+    // basemaps.cartocdn.com: the interactive area map's tile images —
+    // CARTO's free, keyless basemap service (their license explicitly
+    // permits this kind of use, unlike raw OpenStreetMap tile servers
+    // which ask production apps to use an alternative provider).
+    `img-src 'self' data: https://*.basemaps.cartocdn.com`,
     `connect-src 'self'`,
     `frame-ancestors 'self'`,
     `base-uri 'self'`,
