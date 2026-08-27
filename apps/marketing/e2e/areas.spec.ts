@@ -27,6 +27,30 @@ test.describe("Area pages", () => {
     expect(bodyText.toLowerCase()).toMatch(/live|illustrative|estimated/);
   });
 
+  test("shows a peer-average radar chart comparing the area against its city average", async ({ page }) => {
+    // Manchester has 4 covered areas — enough for a genuine city
+    // average, not a fallback to national (see lib/peer-average.test.ts
+    // for why 3 was chosen as the real, data-driven threshold).
+    await page.goto("/areas/didsbury-m20");
+    await page.waitForTimeout(1000);
+
+    const label = await page.getByText("Didsbury against the").textContent();
+    expect(label?.toLowerCase()).toContain("manchester average");
+
+    const polygons = await page.locator(".recharts-radar-polygon").count();
+    expect(polygons).toBe(2);
+  });
+
+  test("falls back to national average for a city with too few areas for a meaningful comparison", async ({ page }) => {
+    // St Andrews is the only area covered in Fife — a "city average"
+    // there would be mathematically identical to the area itself.
+    await page.goto("/areas/st-andrews-ky16");
+    await page.waitForTimeout(1000);
+
+    const label = await page.getByText("St Andrews against the").textContent();
+    expect(label?.toLowerCase()).toContain("national average");
+  });
+
   test("the areas index emits a real ItemList schema whose count matches the visible page content", async ({ page }) => {
     await page.goto("/areas");
     // The layout's site-wide Organization/WebSite scripts render

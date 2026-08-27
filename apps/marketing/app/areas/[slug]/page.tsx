@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import {
   getAllAreas,
   getAreaBySlug,
+  getPeerAverage,
   isLiveData,
   hasLiveGeography,
   getSimilarAreas,
@@ -22,6 +23,7 @@ import {
 } from "@/components/area-viz";
 import { Badge, Button, Card, SectionLabel } from "@/components/ui";
 import { LocalServices, OffersBlock } from "@/components/commercial";
+import { AreaPeerRadar } from "@/components/area-peer-radar";
 import {
   loadApprovedListings,
   loadActiveProducts,
@@ -84,6 +86,7 @@ export default async function AreaPage({
   const summary = override?.description ?? area.summary;
 
   const verdict = scoreVerdict(area.realvianScore);
+  const peerAverage = getPeerAverage(area);
   const similar = getSimilarAreas(area, 3);
 
   const user = await getCurrentUser();
@@ -305,6 +308,18 @@ export default async function AreaPage({
               </p>
 
               <MetricBars dimensions={area.dimensions} showDetail />
+
+              <div className="mt-8 pt-8 border-t border-[var(--border)]">
+                <p className="text-[12.5px] text-[var(--text-muted)] mb-3">
+                  {area.district} against the {peerAverage.label.toLowerCase()}
+                </p>
+                <AreaPeerRadar
+                  dimensions={area.dimensions}
+                  peerDimensions={peerAverage.dimensions}
+                  areaName={area.district}
+                  peerLabel={peerAverage.label}
+                />
+              </div>
             </div>
 
             {/* Highlights / watchouts */}

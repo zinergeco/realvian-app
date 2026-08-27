@@ -1174,6 +1174,45 @@ export function getAreasByCity(city: string): Area[] {
   return AREAS.filter((a) => a.city.toLowerCase() === city.toLowerCase()).map(mergeLive);
 }
 
+const MIN_CITY_PEERS_FOR_COMPARISON = 3;
+
+export interface PeerAverage {
+  label: string;
+  dimensions: { key: string; value: number }[];
+}
+
+/**
+ * Averages each of the six dimensions across an area's peers, for
+ * showing "this area vs typical" rather than just the area's raw
+ * numbers in isolation.
+ *
+ * Falls back from city to national average when the city has too few
+ * areas to make a city comparison meaningful — checked against the
+ * real dataset before picking this threshold: two cities (Fife,
+ * Liverpool) currently have exactly one covered area each, where a
+ * "city average" would be mathematically identical to the area
+ * itself, a completely uninformative comparison dressed up as one.
+ * Three was chosen as the minimum genuinely distinct sample size.
+ */
+export function getPeerAverage(area: Area): PeerAverage {
+  const cityPeers = getAllAreas().filter((a) => a.city === area.city);
+  const useCity = cityPeers.length >= MIN_CITY_PEERS_FOR_COMPARISON;
+  const comparisonSet = useCity ? cityPeers : getAllAreas();
+
+  const dimensions = area.dimensions.map((dim) => {
+    const values = comparisonSet
+      .map((a) => a.dimensions.find((d) => d.key === dim.key)?.value)
+      .filter((v): v is number => v !== undefined);
+    const average = values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : dim.value;
+    return { key: dim.key, value: Math.round(average) };
+  });
+
+  return {
+    label: useCity ? `${area.city} average` : "National average",
+    dimensions,
+  };
+}
+
 /**
  * Whether a specific area has real fetched DIMENSION data (amenities,
  * green space or transport) — the specific claim the UI badge makes.
