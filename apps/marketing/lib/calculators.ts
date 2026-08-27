@@ -142,6 +142,69 @@ export function calculateMortgage(
   };
 }
 
+export interface AmortizationYear {
+  year: number;
+  remainingBalance: number;
+  cumulativeInterest: number;
+  cumulativePrincipal: number;
+}
+
+/**
+ * Year-by-year amortization schedule for a fixed-rate loan. Uses the
+ * same rounded monthly payment calculateMortgage() already displays
+ * (not the raw unrounded figure) so this schedule's final cumulative
+ * interest total is consistent with the "Total interest over term"
+ * figure already on screen elsewhere, not a few pounds off from it.
+ *
+ * The final month's payment is adjusted to exactly clear whatever
+ * balance remains, rather than being the fixed monthly amount like
+ * every other month — standard real-world mortgage servicing
+ * practice, and the only way for the schedule to end at exactly £0
+ * remaining rather than a small, confusing residual balance.
+ */
+export function calculateAmortizationSchedule(
+  loanAmount: number,
+  interestRatePct: number,
+  termYears: number,
+): AmortizationYear[] {
+  if (loanAmount <= 0 || termYears <= 0) return [];
+
+  const monthlyRate = interestRatePct / 100 / 12;
+  const numPayments = termYears * 12;
+
+  const rawMonthlyPayment =
+    monthlyRate === 0
+      ? loanAmount / numPayments
+      : (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+        (Math.pow(1 + monthlyRate, numPayments) - 1);
+  const monthlyPayment = Math.round(rawMonthlyPayment);
+
+  let balance = loanAmount;
+  let cumulativeInterest = 0;
+  let cumulativePrincipal = 0;
+  const schedule: AmortizationYear[] = [];
+
+  for (let month = 1; month <= numPayments; month++) {
+    const interestPortion = balance * monthlyRate;
+    const principalPortion = month === numPayments ? balance : monthlyPayment - interestPortion;
+
+    balance -= principalPortion;
+    cumulativeInterest += interestPortion;
+    cumulativePrincipal += principalPortion;
+
+    if (month % 12 === 0) {
+      schedule.push({
+        year: month / 12,
+        remainingBalance: Math.round(Math.max(balance, 0)),
+        cumulativeInterest: Math.round(cumulativeInterest),
+        cumulativePrincipal: Math.round(cumulativePrincipal),
+      });
+    }
+  }
+
+  return schedule;
+}
+
 /* ══════════════════════════════════════════════════════
    3. RENTAL YIELD
    ══════════════════════════════════════════════════════ */

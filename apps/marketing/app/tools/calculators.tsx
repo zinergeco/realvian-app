@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Card, cx } from "@/components/ui";
+import { AmortizationChart } from "@/components/amortization-chart";
 import {
   calculateMortgage,
+  calculateAmortizationSchedule,
   calculateSdlt,
   calculateYield,
   calculateRoi,
@@ -134,6 +136,10 @@ function MortgageCalculator() {
     () => calculateMortgage(income, deposit, rate, term, multiplier),
     [income, deposit, rate, term, multiplier],
   );
+  const schedule = useMemo(
+    () => calculateAmortizationSchedule(result.maxLoan, rate, term),
+    [result.maxLoan, rate, term],
+  );
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
@@ -159,6 +165,14 @@ function MortgageCalculator() {
         <ResultRow label="Estimated maximum property price" value={fmtGBP(result.maxPropertyPrice)} emphasis />
         <ResultRow label="Estimated monthly payment" value={fmtGBP(result.monthlyPayment)} />
         <ResultRow label="Total interest over term" value={fmtGBP(result.totalInterest)} />
+        {schedule.length > 0 && (
+          <div className="mt-5 pt-5 border-t border-[var(--border)]">
+            <p className="text-[12px] text-[var(--text-muted)] mb-3">
+              How your balance and interest paid change over the {term}-year term
+            </p>
+            <AmortizationChart schedule={schedule} />
+          </div>
+        )}
         <p className="text-[12px] text-[var(--text-muted)] mt-4 pt-4 border-t border-[var(--border)]">
           This is a planning estimate, not a mortgage offer or advice. Get a
           decision in principle from a broker or lender for a figure you can

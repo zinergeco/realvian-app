@@ -42,4 +42,35 @@ test.describe("Mortgage calculator (real UI interaction)", () => {
     const body = await page.locator("body").innerText();
     expect(body).toMatch(/mortgage/i);
   });
+
+  test("shows an amortization chart with real balance and interest data, not an empty frame", async ({ page }) => {
+    await page.goto("/tools");
+    await page.waitForTimeout(500);
+
+    // Two area shapes — remaining balance and cumulative interest —
+    // not zero (empty chart) or one (missing a series).
+    const areaShapes = await page.locator(".recharts-area-area").count();
+    expect(areaShapes).toBe(2);
+
+    const legendText = await page.locator(".recharts-legend-wrapper").textContent();
+    expect(legendText).toContain("Remaining balance");
+    expect(legendText).toContain("Interest paid so far");
+  });
+
+  test("changing the mortgage term updates the chart's x-axis range to match", async ({ page }) => {
+    await page.goto("/tools");
+    await page.waitForTimeout(500);
+
+    const termInput = page.getByLabel("Mortgage term");
+    await termInput.fill("10");
+    await termInput.blur();
+    await page.waitForTimeout(500);
+
+    // 10 yearly data points on the x-axis, not still 25 from the
+    // default — confirms the chart actually reacts to the real input,
+    // not just rendering once and never updating.
+    const xAxisTicks = await page.locator(".recharts-xAxis .recharts-cartesian-axis-tick").count();
+    expect(xAxisTicks).toBeLessThanOrEqual(10);
+    expect(xAxisTicks).toBeGreaterThan(0);
+  });
 });
