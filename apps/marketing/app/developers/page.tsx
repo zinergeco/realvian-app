@@ -96,7 +96,7 @@ export default function DevelopersPage() {
           <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
             <strong className="text-[var(--text-primary)]">API keys:</strong>{" "}
             generate one free from your{" "}
-            <a href="/account" style={{ color: "var(--primary)" }}>account page</a> — no
+            <a href="/account" style={{ color: "var(--primary)", textDecoration: "underline" }}>account page</a> — no
             billing, no approval step. Send it as{" "}
             <code style={{ fontFamily: "var(--font-mono)" }}>Authorization: Bearer rv_...</code>{" "}
             on any request. The raw key is shown once at generation and never stored — if you lose
@@ -112,7 +112,7 @@ export default function DevelopersPage() {
         </h2>
         <p className="text-[13.5px] text-[var(--text-secondary)] mb-6">
           Prefer to generate a client, or import into Postman/Insomnia?
-          Full <a href="/api/v1/openapi.json" style={{ color: "var(--primary)" }}>OpenAPI 3.0 spec</a>{" "}
+          Full <a href="/api/v1/openapi.json" style={{ color: "var(--primary)", textDecoration: "underline" }}>OpenAPI 3.0 spec</a>{" "}
           covering every endpoint below.
         </p>
 
@@ -271,7 +271,7 @@ export default function DevelopersPage() {
           <li>· CORS is open — call these endpoints directly from a browser on any domain.</li>
           <li>· Responses are cached for 60 seconds; don't poll faster than that.</li>
           <li>· Attribution isn't required, but a link back to realvian.co.uk is appreciated.</li>
-          <li>· This is informational data, not financial advice — see our <a href="/legal/ai" style={{ color: "var(--primary)" }}>AI disclosure</a> for how scores are generated.</li>
+          <li>· This is informational data, not financial advice — see our <a href="/legal/ai" style={{ color: "var(--primary)", textDecoration: "underline" }}>AI disclosure</a> for how scores are generated.</li>
         </ul>
       </section>
     </>
