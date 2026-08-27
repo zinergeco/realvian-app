@@ -9,11 +9,12 @@ import {
 } from "@/lib/areas";
 import { AreaCard, DataNote } from "@/components/area-viz";
 import { Badge, Card, SectionLabel } from "@/components/ui";
+import { areasItemListSchema } from "@/lib/site-schema";
 
 export const metadata: Metadata = {
   title: "UK Area Guides — Property Data for Every Postcode",
   description:
-    "Browse Realvian Scores, average prices, rental yields and five-year growth for UK areas. Schools, crime, transport and amenities analysed across 40 areas in 13 cities.",
+    "Browse Realvian Scores, average prices, rental yields and five-year growth for UK areas. Schools, crime, transport and amenities analysed across 38 areas in 12 cities.",
   alternates: { canonical: "/areas" },
 };
 
@@ -41,9 +42,14 @@ const RANKINGS = [
 export default function AreasHubPage() {
   const areas = getAllAreas();
   const cities = getAllCities();
+  const itemListSchema = areasItemListSchema(areas);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       {/* ══════════ HERO ══════════ */}
       <section className="relative overflow-hidden border-b border-[var(--border)]">
         <div className="absolute inset-0 grid-bg opacity-60" aria-hidden="true" />

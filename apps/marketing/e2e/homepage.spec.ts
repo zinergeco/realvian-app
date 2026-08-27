@@ -21,4 +21,17 @@ test.describe("Homepage", () => {
     const aiLink = page.getByRole("link", { name: /AI disclosure/i });
     await expect(aiLink).toBeVisible();
   });
+
+  test("emits valid, parseable Organization and WebSite JSON-LD in the real rendered HTML", async ({ page }) => {
+    await page.goto("/");
+    const scripts = await page.locator('script[type="application/ld+json"]').allTextContents();
+    expect(scripts.length).toBeGreaterThanOrEqual(2);
+
+    const parsed = scripts.map((s) => JSON.parse(s));
+    const org = parsed.find((s) => s["@type"] === "Organization");
+    const site = parsed.find((s) => s["@type"] === "WebSite");
+
+    expect(org?.name).toBe("Realvian");
+    expect(site?.name).toBe("Realvian");
+  });
 });

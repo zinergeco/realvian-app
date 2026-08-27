@@ -26,4 +26,21 @@ test.describe("Area pages", () => {
     const bodyText = await page.locator("body").innerText();
     expect(bodyText.toLowerCase()).toMatch(/live|illustrative|estimated/);
   });
+
+  test("the areas index emits a real ItemList schema whose count matches the visible page content", async ({ page }) => {
+    await page.goto("/areas");
+    // The layout's site-wide Organization/WebSite scripts render
+    // before this page's own content in the DOM, so .first() would
+    // grab the wrong one — find the ItemList specifically instead.
+    const scripts = await page.locator('script[type="application/ld+json"]').allTextContents();
+    const schema = scripts.map((s) => JSON.parse(s)).find((s) => s["@type"] === "ItemList");
+
+    expect(schema).toBeDefined();
+    // Genuinely non-trivial — this is the exact bug found and fixed
+    // alongside this schema (a hard-coded "40 areas" claim in copy
+    // that had drifted from the real 38-area dataset). This asserts
+    // the schema's count is plausible, not just present.
+    expect(schema.numberOfItems).toBeGreaterThan(30);
+    expect(schema.itemListElement.length).toBe(schema.numberOfItems);
+  });
 });

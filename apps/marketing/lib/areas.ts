@@ -102,7 +102,7 @@ function dims(
 }
 
 /* ══════════════════════════════════════════════════════
-   THE DATASET — 40 areas across a national spread
+   THE DATASET — 38 areas across a national spread
    ══════════════════════════════════════════════════════ */
 import { LIVE_OVERRIDES, LIVE_GENERATED_AT } from "./areas-live-data";
 

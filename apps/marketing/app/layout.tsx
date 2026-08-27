@@ -4,6 +4,7 @@ import { ThemeProvider, themeScript, type Theme } from "@/components/theme-provi
 import { SiteHeader } from "@/components/site-header";
 import { getCurrentUser } from "@/lib/public-auth";
 import { SiteFooter } from "@/components/site-footer";
+import { organizationSchema, websiteSchema } from "@/lib/site-schema";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -85,6 +86,14 @@ export default async function RootLayout({
         />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <ThemeProvider initialTheme={theme}>
           <SiteHeader user={user ? { name: user.name, email: user.email } : null} />
           <main>{children}</main>
