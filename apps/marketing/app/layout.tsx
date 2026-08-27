@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { ThemeProvider, themeScript, type Theme } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { getCurrentUser } from "@/lib/public-auth";
@@ -64,6 +64,12 @@ export default async function RootLayout({
   const cookieTheme = cookieStore.get("realvian-theme")?.value;
   const theme: Theme = cookieTheme === "dark" ? "dark" : "light";
 
+  // Set by middleware.ts on every request — matched against the CSP
+  // header it also sets, so this specific inline script is allowed to
+  // execute while any injected/XSS script (which wouldn't know this
+  // per-request value) is not.
+  const nonce = (await headers()).get("x-csp-nonce") ?? undefined;
+
   // Auth state resolved once here, server-side, and passed down — the
   // header must never guess or default to "signed out" while a valid
   // session cookie exists. Fails closed if the database is briefly down.
@@ -77,7 +83,7 @@ export default async function RootLayout({
     >
       <head>
         {/* Runs before first paint — prevents flash of wrong theme */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
