@@ -12,6 +12,7 @@ import {
 import { saveComparisonAction } from "@/lib/comparison-actions";
 import { ScoreRing, DataNote } from "./area-viz";
 import { Button, Card, cx } from "./ui";
+import { DimensionRadar } from "./dimension-radar";
 
 /* ── Area picker dropdown ───────────────────────── */
 function AreaPicker({
@@ -461,7 +462,15 @@ export function ComparisonView({
                 Liveability dimensions
               </h2>
             </div>
-            <div className="px-3 sm:px-6">
+            <div className="px-3 sm:px-6 pt-5">
+              <DimensionRadar
+                dimensionsA={a.dimensions}
+                dimensionsB={b.dimensions}
+                nameA={a.district}
+                nameB={b.district}
+              />
+            </div>
+            <div className="px-3 sm:px-6 pb-2">
               <table className="w-full">
                 <caption className="sr-only">
                   Liveability dimensions comparing {a.district} and {b.district}
