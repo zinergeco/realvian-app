@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Badge, Card, cx } from "@/components/ui";
 import { AmortizationChart } from "@/components/amortization-chart";
+import { SdltBandChart } from "@/components/sdlt-band-chart";
 import {
   calculateMortgage,
   calculateAmortizationSchedule,
@@ -229,6 +230,9 @@ function StampDutyCalculator() {
                 value={fmtGBP(b.tax)}
               />
             ))}
+            <div className="my-4">
+              <SdltBandChart bands={result.bands} />
+            </div>
             <ResultRow label="Total Stamp Duty" value={fmtGBP(result.totalTax)} emphasis />
             <ResultRow label="Effective rate" value={`${(result.effectiveRate * 100).toFixed(2)}%`} />
           </>

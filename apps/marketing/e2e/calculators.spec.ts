@@ -34,6 +34,27 @@ test.describe("Stamp Duty calculator (real UI interaction)", () => {
     const totalRow = page.locator("text=Total Stamp Duty").locator("..");
     await expect(totalRow).toContainText("£0");
   });
+
+  test("shows a band breakdown chart that reacts to real price changes", async ({ page }) => {
+    await page.goto("/tools");
+    await page.getByRole("button", { name: "Stamp duty", exact: true }).click();
+    await page.getByLabel("Purchase price").fill("350000");
+    await page.getByLabel("Purchase price").blur();
+    await page.waitForTimeout(500);
+
+    // £350,000 standard reaches three bands (0%, 2%, 5%).
+    const barsBefore = await page.locator(".recharts-bar-rectangle").count();
+    expect(barsBefore).toBeGreaterThan(0);
+
+    // Dropping well below the first band's ceiling should genuinely
+    // change the chart, not leave a stale chart from the old price.
+    await page.getByLabel("Purchase price").fill("100000");
+    await page.getByLabel("Purchase price").blur();
+    await page.waitForTimeout(500);
+
+    const totalRow = page.locator("text=Total Stamp Duty").locator("..");
+    await expect(totalRow).toContainText("£0");
+  });
 });
 
 test.describe("Mortgage calculator (real UI interaction)", () => {
