@@ -51,6 +51,18 @@ export interface PostSection {
   table?: { columns: string[]; rows: string[][] };
   /** Optional inline stat callouts */
   stats?: { label: string; value: string; accent?: boolean }[];
+  /**
+   * Optional chart data — kept separate from `table` deliberately.
+   * `table.rows` is pre-formatted display strings ("£412,500", "6.9%")
+   * for exact reproduction in the page; re-parsing those back into
+   * numbers for a chart would be fragile (currency symbols, commas,
+   * percent signs, unit variations). This carries the real number
+   * directly from source for bar sizing, plus a pre-formatted display
+   * string using the exact same formatter the table cell uses — so
+   * the chart tooltip and the table row can never show different
+   * text for the same value.
+   */
+  chart?: { label: string; value: number; displayValue: string }[];
 }
 
 export interface BlogPost {
@@ -297,6 +309,11 @@ function buildRankingPost(spec: RankingSpec, allAreas: Area[]): BlogPost | null 
       paragraphs: [
         `Ranked across ${pool.length} scored areas. Each links to its full breakdown.`,
       ],
+      chart: top.map((a) => ({
+        label: `${a.district}, ${a.city}`,
+        value: getVal(a),
+        displayValue: spec.unit(getVal(a)),
+      })),
       table: {
         columns: ["#", "Area", "City", spec.title.split(" ")[0]!, "Realvian Score"],
         rows: top.map((a, i) => [

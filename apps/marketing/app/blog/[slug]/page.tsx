@@ -11,6 +11,7 @@ import { AreaCard, DataNote } from "@/components/area-viz";
 import { Badge, Card, SectionLabel } from "@/components/ui";
 import { CitySkyline, IlloPipeline } from "@/components/illustrations";
 import { AffiliateOffer } from "@/components/commercial";
+import { RankingChart } from "@/components/ranking-chart";
 import {
   loadActiveProducts,
   selectProductsForPost,
@@ -254,6 +255,13 @@ export default async function BlogPostPage({
                     </div>
                   </Card>
                 ))}
+              </div>
+            )}
+
+            {/* Ranking chart — visual leaderboard above the data table, same values */}
+            {section.chart && (
+              <div className="mt-6">
+                <RankingChart items={section.chart} />
               </div>
             )}
 
