@@ -57,6 +57,36 @@ test.describe("Stamp Duty calculator (real UI interaction)", () => {
   });
 });
 
+test.describe("Rental yield calculator (real UI interaction)", () => {
+  test("shows a three-part income breakdown chart matching the numbers in the table above it", async ({ page }) => {
+    await page.goto("/tools");
+    await page.getByRole("button", { name: "Rental yield", exact: true }).click();
+    await page.waitForTimeout(500);
+
+    const bars = await page.locator(".recharts-bar-rectangle").count();
+    expect(bars).toBe(3); // rent, costs, net income
+
+    // Changing rent should genuinely move the chart, not leave it stale.
+    await page.getByLabel("Monthly rent").fill("2000");
+    await page.getByLabel("Monthly rent").blur();
+    await page.waitForTimeout(500);
+
+    const totalRow = page.locator("text=Annual rent").first().locator("..");
+    await expect(totalRow).toContainText("£24,000"); // 2000 * 12
+  });
+});
+
+test.describe("ROI calculator (real UI interaction)", () => {
+  test("shows a four-part cash-flow breakdown chart matching the numbers in the table above it", async ({ page }) => {
+    await page.goto("/tools");
+    await page.getByRole("button", { name: "Return (ROI)", exact: true }).click();
+    await page.waitForTimeout(500);
+
+    const bars = await page.locator(".recharts-bar-rectangle").count();
+    expect(bars).toBe(4); // rent, running costs, mortgage interest, net cash flow
+  });
+});
+
 test.describe("Mortgage calculator (real UI interaction)", () => {
   test("the mortgage tab is the default and renders without needing a click", async ({ page }) => {
     await page.goto("/tools");

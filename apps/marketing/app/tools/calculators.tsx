@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Badge, Card, cx } from "@/components/ui";
 import { AmortizationChart } from "@/components/amortization-chart";
 import { SdltBandChart } from "@/components/sdlt-band-chart";
+import { BreakdownChart } from "@/components/breakdown-chart";
 import {
   calculateMortgage,
   calculateAmortizationSchedule,
@@ -289,6 +290,17 @@ function YieldCalculator() {
         <ResultRow label="Gross yield" value={`${result.grossYieldPct.toFixed(2)}%`} />
         <ResultRow label="Annual net income" value={fmtGBP(result.annualNetIncome)} />
         <ResultRow label="Net yield" value={`${result.netYieldPct.toFixed(2)}%`} emphasis />
+        {result.annualRent > 0 && (
+          <div className="mt-5 pt-5 border-t border-[var(--border)]">
+            <BreakdownChart
+              items={[
+                { label: "Annual rent", value: result.annualRent, kind: "income" },
+                { label: "Annual costs", value: result.annualCosts, kind: "expense" },
+                { label: "Net income", value: result.annualNetIncome, kind: "result" },
+              ]}
+            />
+          </div>
+        )}
         <p className="text-[12px] text-[var(--text-muted)] mt-4 pt-4 border-t border-[var(--border)]">
           Net yield here excludes mortgage costs — see the Return (ROI) tab
           for cash-on-cash return after financing.
@@ -339,6 +351,18 @@ function RoiCalculator() {
         <ResultRow label="Annual mortgage interest" value={fmtGBP(result.annualMortgageInterest)} />
         <ResultRow label="Annual net cash flow" value={fmtGBP(result.annualNetCashFlow)} />
         <ResultRow label="Cash-on-cash return" value={`${result.cashOnCashReturnPct.toFixed(2)}%`} emphasis />
+        {rent > 0 && (
+          <div className="mt-5 pt-5 border-t border-[var(--border)]">
+            <BreakdownChart
+              items={[
+                { label: "Annual rent", value: rent * 12, kind: "income" },
+                { label: "Running costs", value: runningCosts, kind: "expense" },
+                { label: "Mortgage interest", value: result.annualMortgageInterest, kind: "expense" },
+                { label: "Net cash flow", value: result.annualNetCashFlow, kind: "result" },
+              ]}
+            />
+          </div>
+        )}
         <p className="text-[12px] text-[var(--text-muted)] mt-4 pt-4 border-t border-[var(--border)]">
           Assumes an interest-only mortgage, which is standard for most
           buy-to-let cash-flow planning. Doesn't include capital appreciation
