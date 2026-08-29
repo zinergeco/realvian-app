@@ -210,7 +210,7 @@ export function IntelligencePanel() {
               {area.district}
             </h3>
             <p className="text-[12.5px] text-[var(--text-muted)] mt-1">
-              Realvian Score · 24 dimensions
+              Realvian Score · 6 dimensions
             </p>
           </div>
         </div>

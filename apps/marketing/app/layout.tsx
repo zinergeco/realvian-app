@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s · Realvian",
   },
   description:
-    "Score any UK postcode across 24 data dimensions. Area intelligence, yield analysis, and market data for landlords, investors, agents and developers.",
+    "Score any UK postcode across six liveability dimensions. Area intelligence, yield analysis, and market data for landlords, investors, agents and developers.",
   alternates: {
     types: {
       "application/rss+xml": [{ url: "/feed.xml", title: "Realvian — UK Property Market Reports" }],
@@ -34,12 +34,12 @@ export const metadata: Metadata = {
     siteName: "Realvian",
     title: "Realvian — UK Property Intelligence Platform",
     description:
-      "Score any UK postcode across 24 data dimensions. Built on fused public data, not guesswork.",
+      "Score any UK postcode across six liveability dimensions. Built on fused public data, not guesswork.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Realvian — UK Property Intelligence Platform",
-    description: "Score any UK postcode across 24 data dimensions.",
+    description: "Score any UK postcode across six liveability dimensions.",
   },
   robots: { index: true, follow: true },
   icons: { icon: "/favicon.svg" },

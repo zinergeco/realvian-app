@@ -22,6 +22,27 @@ test.describe("Homepage", () => {
     await expect(aiLink).toBeVisible();
   });
 
+  test("capability cards describing genuinely unbuilt features are honestly labelled, not presented as live", async ({ page }) => {
+    // Found live on the homepage: three capability cards (Planning
+    // pulse, Climate & resilience lens, Smart alerts) described real
+    // functionality — flood risk data, planning alerts, price-drop
+    // notifications — that doesn't exist anywhere in the codebase.
+    // Fixed by applying the same "In development" labelling already
+    // used honestly elsewhere on the site (see components/coming-soon.tsx).
+    // This test exists so a future edit can't silently drop that label
+    // while leaving the capability claim in place.
+    await page.goto("/");
+    const badges = await page.locator('text="In development"').count();
+    expect(badges).toBeGreaterThanOrEqual(3);
+  });
+
+  test("the site consistently states the real dimension count (6), not a stale or inflated number", async ({ page }) => {
+    await page.goto("/");
+    const body = await page.locator("body").innerText();
+    expect(body).not.toContain("24 dimensions");
+    expect(body).not.toContain("24 data dimensions");
+  });
+
   test("emits valid, parseable Organization and WebSite JSON-LD in the real rendered HTML", async ({ page }) => {
     await page.goto("/");
     const scripts = await page.locator('script[type="application/ld+json"]').allTextContents();

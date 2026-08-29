@@ -47,7 +47,7 @@ const CAPABILITIES = [
   {
     illo: "compare" as const,
     title: "Area comparison engine",
-    desc: "Put any two UK postcodes side by side across 24 dimensions — schools, crime, transport, price growth, yield, flood risk, demographics.",
+    desc: "Put any two UK postcodes side by side across six liveability dimensions, plus price, yield and growth — schools, crime, transport, amenities.",
     tag: "Core",
   },
   {
@@ -59,7 +59,7 @@ const CAPABILITIES = [
   {
     illo: "portfolio" as const,
     title: "Yield & ROI modelling",
-    desc: "Gross, net, and IRR with editable assumptions. Stress-test against rate changes and void periods before you commit.",
+    desc: "Gross yield, net yield, and cash-on-cash return with editable assumptions — purchase price, deposit, rate, rent and running costs.",
     tag: "Core",
   },
   {
@@ -67,18 +67,21 @@ const CAPABILITIES = [
     title: "Planning pulse",
     desc: "Every planning application near a property you care about, aggregated and alerted the week it lands.",
     tag: "Premium",
+    inDevelopment: true,
   },
   {
     illo: "fusion" as const,
     title: "Climate & resilience lens",
     desc: "Flood risk, air quality, and heat projections — the risks a mortgage survey will not tell you about.",
     tag: "Premium",
+    inDevelopment: true,
   },
   {
     illo: "alerts" as const,
     title: "Smart alerts",
     desc: "Price drops, new matching listings, crime-trend shifts, and planning activity — delivered when they happen, not monthly.",
     tag: "Core",
+    inDevelopment: true,
   },
 ];
 
@@ -170,8 +173,8 @@ export default async function HomePage() {
                 className="animate-rise mt-7 max-w-[520px] text-[17px] leading-[1.65] text-[var(--text-secondary)]"
                 style={{ animationDelay: "240ms" }}
               >
-                Realvian scores every UK postcode across 24 data dimensions —
-                schools, crime, transport, yield, growth, flood risk — fused from
+                Realvian scores every UK postcode across six liveability dimensions —
+                schools, crime, transport, amenities — fused from
                 fourteen public sources and refreshed continuously.
               </p>
 
@@ -337,8 +340,8 @@ export default async function HomePage() {
             <ul className="mt-7 space-y-3">
               {[
                 "Every score traceable to its inputs",
-                "Live map overlays for crime, schools and planning",
-                "Side-by-side comparison across 24 dimensions",
+                "Interactive map of every area, coloured by score",
+                "Side-by-side comparison across six liveability dimensions",
               ].map((t) => (
                 <li
                   key={t}
@@ -408,18 +411,25 @@ export default async function HomePage() {
                   </div>
                 </div>
                 <div className="p-6 flex-1">
-                <Badge
-                  tone={
-                    c.tag === "Premium"
-                      ? "accent"
-                      : c.tag === "Proprietary"
-                        ? "highlight"
-                        : "neutral"
-                  }
-                  className="!text-[10px] mb-4"
-                >
-                  {c.tag}
-                </Badge>
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
+                  <Badge
+                    tone={
+                      c.tag === "Premium"
+                        ? "accent"
+                        : c.tag === "Proprietary"
+                          ? "highlight"
+                          : "neutral"
+                    }
+                    className="!text-[10px]"
+                  >
+                    {c.tag}
+                  </Badge>
+                  {c.inDevelopment && (
+                    <Badge tone="accent" className="!text-[10px]">
+                      In development
+                    </Badge>
+                  )}
+                </div>
                 <h3 className="text-[16.5px] font-semibold text-[var(--text-primary)] mb-2.5">
                   {c.title}
                 </h3>
