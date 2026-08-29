@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/public-auth";
 import { listProperties, computeUrgency, sortByUrgency } from "@/lib/properties";
+import { computePortfolioRentPoints } from "@/lib/rent-comparison";
 import { Badge, Button, Card, SectionLabel } from "@/components/ui";
 import { IlloPortfolio } from "@/components/illustrations";
 import { AddPropertyForm } from "./add-property-form";
 import { PropertyCard } from "./property-card";
+import { PortfolioRentChart } from "@/components/portfolio-rent-chart";
 
 export const metadata: Metadata = {
   title: "Landlord Portal — Compliance Tracker",
@@ -66,6 +68,7 @@ export default async function LandlordPortalPage() {
 
   // ── Logged in: the real tool ──
   const properties = sortByUrgency((await listProperties(user.id)).map(computeUrgency));
+  const portfolioRentPoints = computePortfolioRentPoints(properties);
   const overdueCount = properties.filter((p) => p.urgency === "overdue").length;
   const urgentCount = properties.filter((p) => p.urgency === "urgent").length;
 
@@ -105,6 +108,14 @@ export default async function LandlordPortalPage() {
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-8">
         <div className="space-y-4 order-2 lg:order-1">
+          {portfolioRentPoints.length >= 2 && (
+            <Card className="p-5 mb-2">
+              <p className="text-[12.5px] text-[var(--text-muted)] mb-3">
+                Rent across your portfolio, positioned against each property's own area average
+              </p>
+              <PortfolioRentChart points={portfolioRentPoints} />
+            </Card>
+          )}
           {properties.length === 0 ? (
             <Card className="p-10 text-center">
               <div className="w-[100px] mx-auto mb-4 opacity-60">

@@ -33,3 +33,36 @@ export function compareRentToArea(
     dataStatus: isLiveData(outcode) ? "live" : "illustrative",
   };
 }
+
+export interface PortfolioRentPoint {
+  nickname: string;
+  diffPct: number;
+  currentRent: number;
+  areaAvgRent: number;
+}
+
+/**
+ * Extracted as its own pure function, rather than left as inline page
+ * logic, specifically so it can be unit tested with synthetic
+ * property data — this feature has no way to be verified against a
+ * real database from this environment (no DATABASE_URL locally), so
+ * the data-transformation logic itself is what's actually testable
+ * here; the live end-to-end flow needs verifying against the real
+ * site once deployed.
+ */
+export function computePortfolioRentPoints(
+  properties: { nickname: string; outcode: string | null; currentRent: number | null }[],
+): PortfolioRentPoint[] {
+  return properties
+    .map((p) => {
+      const comparison = compareRentToArea(p.outcode, p.currentRent);
+      if (!comparison) return null;
+      return {
+        nickname: p.nickname,
+        diffPct: comparison.diffPct,
+        currentRent: p.currentRent!,
+        areaAvgRent: comparison.areaAvgRent,
+      };
+    })
+    .filter((p): p is PortfolioRentPoint => p !== null);
+}
