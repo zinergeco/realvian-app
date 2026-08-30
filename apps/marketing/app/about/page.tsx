@@ -58,9 +58,9 @@ export default function AboutPage() {
 
         <p>
           Realvian is being built in the open, in stages. The area
-          intelligence and comparison tools are live today. Dedicated
-          workspaces for landlords, investors, agents and developers, along
-          with calculators and portfolio tools, are still being built — see
+          intelligence and comparison tools, the landlord, investor and agent
+          workspaces, and the calculator suite are live today. A dedicated
+          developer workspace is still being built — see
           the <Link href="/portals" style={{ color: "var(--primary)" }}>portals</Link> page
           for what's coming.
         </p>

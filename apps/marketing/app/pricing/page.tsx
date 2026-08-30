@@ -13,7 +13,7 @@ export default function PricingPage() {
     <ComingSoon
       eyebrow="Pricing"
       title="Free while we're in beta"
-      description="Everything live today — area scores, comparisons, and market reports — is free to use with no account required. Paid tiers will follow once premium features like off-market data and portfolio tools are live, not before."
+      description="Everything live today — area scores, comparisons, and market reports — is free to use with no account required. Paid tiers will follow once premium features like off-market data are live, not before."
       bullets={[
         "Area intelligence and comparisons stay free",
         "A free tier will remain available once paid plans launch",
