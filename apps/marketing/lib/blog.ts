@@ -178,6 +178,11 @@ function buildCityReport(city: string, areas: Area[]): BlogPost | null {
       paragraphs: [
         `The full table below is sorted by Realvian Score. Each area links to its detailed breakdown across all six dimensions.`,
       ],
+      chart: sorted.map((a) => ({
+        label: `${a.district}, ${a.city}`,
+        value: a.realvianScore,
+        displayValue: `${a.realvianScore}/100`,
+      })),
       table: {
         columns: ["Area", "Score", "Avg price", "Yield", "5-yr growth"],
         rows: sorted.map((a) => [

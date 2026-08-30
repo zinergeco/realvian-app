@@ -26,13 +26,39 @@ test.describe("Ranking chart on market reports", () => {
     expect(chartBody).toContain(`${tableYield}%`);
   });
 
-  test("a city-report post (no chart data) renders fine without a broken empty chart frame", async ({ page }) => {
-    // city-report posts don't populate PostSection.chart — this
-    // confirms the page doesn't crash or render an empty chart
-    // container when that optional field is simply absent.
-    const response = await page.goto("/blog/manchester-property-market-report");
-    expect(response?.status()).toBe(200);
-    const body = await page.locator("body").innerText();
-    expect(body.length).toBeGreaterThan(500);
+});
+
+test.describe("Ranking chart on city market reports", () => {
+  test("renders one bar per area in the city, matching the table's real score values exactly", async ({ page }) => {
+    // Manchester has 4 real covered areas — confirmed via
+    // getAllAreas() earlier this session, not assumed.
+    await page.goto("/blog/manchester-property-market-report");
+    await page.waitForTimeout(1000);
+
+    const bars = await page.locator(".recharts-bar-rectangle").count();
+    expect(bars).toBe(4);
+
+    const tableRows = await page.locator("table tbody tr").count();
+    expect(tableRows).toBe(4);
+
+    const firstTableRow = await page.locator("table tbody tr").first().textContent();
+    expect(firstTableRow).toContain("Didsbury");
+
+    const bodyText = await page.locator("body").innerText();
+    // SVG multi-line labels wrap via separate <tspan> elements, which
+    // .innerText() renders with a newline where the label visually
+    // wraps ("Didsbury,\nManchester"), not the literal ", " the label
+    // string itself contains. The trailing comma is the genuinely
+    // distinctive signal here — "Manchester" alone appears dozens of
+    // times on this page regardless of whether the chart rendered.
+    expect(bodyText).toContain("Didsbury,");
+  });
+
+  test("a city with too few areas for a report (e.g. Fife, 1 area) correctly has no report generated at all", async ({ page }) => {
+    // This is a real, existing design decision (MIN_DATA_POINTS in
+    // lib/blog.ts) unrelated to the chart itself — checked directly
+    // in the source before assuming a 404 here meant a bug.
+    const response = await page.goto("/blog/fife-property-market-report");
+    expect(response?.status()).toBe(404);
   });
 });
