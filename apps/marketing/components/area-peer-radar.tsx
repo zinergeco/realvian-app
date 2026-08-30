@@ -12,8 +12,8 @@ import {
 } from "recharts";
 import type { AreaDimension } from "@/lib/areas";
 
-const COLOR_AREA = "#0EA672"; // matches --primary
-const COLOR_AVERAGE = "#8A93A3"; // matches --text-muted — deliberately understated, this is the baseline, not the subject
+const COLOR_AREA = "var(--primary)";
+const COLOR_AVERAGE = "var(--text-muted)"; // deliberately understated, this is the baseline, not the subject
 
 interface RadarPoint {
   dimension: string;

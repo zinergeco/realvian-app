@@ -12,8 +12,8 @@ import {
 } from "recharts";
 import type { AreaDimension } from "@/lib/areas";
 
-const COLOR_A = "#0EA672"; // matches --primary, used everywhere else for "this area"
-const COLOR_B = "#5B7FFF"; // matches --info, deliberately a different hue, not a shade of green
+const COLOR_A = "var(--primary)"; // "this area", theme-aware
+const COLOR_B = "var(--info)"; // deliberately a different hue, not a shade of green, theme-aware
 
 interface RadarPoint {
   dimension: string;

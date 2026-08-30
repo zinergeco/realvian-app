@@ -6,7 +6,13 @@ import type { SdltBandResult } from "@/lib/calculators";
 // A sequential palette from the site's existing primary green through
 // to gold — the intent is "cooler/lower rate" to "warmer/higher rate"
 // reading left to right, not an arbitrary rainbow.
-const BAND_COLORS = ["#8A93A3", "#0EA672", "#0B8A5E", "#D99A1F", "#F2B134"];
+const BAND_COLORS = [
+  "var(--text-muted)",
+  "var(--primary)",
+  "var(--primary-hover)",
+  "var(--color-gold-deep)",
+  "var(--color-gold)",
+];
 
 function fmtGBP(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);

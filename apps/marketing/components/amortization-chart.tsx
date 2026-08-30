@@ -12,8 +12,8 @@ import {
 } from "recharts";
 import type { AmortizationYear } from "@/lib/calculators";
 
-const COLOR_BALANCE = "#0EA672"; // matches --primary
-const COLOR_INTEREST = "#F2B134"; // matches --color-gold
+const COLOR_BALANCE = "var(--primary)";
+const COLOR_INTEREST = "var(--color-gold)"; // this one happens to be identical in both themes, but kept consistent with the rest for the same reason
 
 function fmtGBP(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);

@@ -18,9 +18,9 @@ import { scoreVerdict } from "@/lib/areas";
 // visualisation across the whole site since the map shipped, and this
 // keeps that consistent rather than inventing a fourth colour scheme.
 const TONE_COLORS: Record<string, string> = {
-  accent: "#F2B134",
-  primary: "#0EA672",
-  neutral: "#8A93A3",
+  accent: "var(--color-gold)",
+  primary: "var(--primary)",
+  neutral: "var(--text-muted)",
 };
 
 function fmtGBP(n: number): string {

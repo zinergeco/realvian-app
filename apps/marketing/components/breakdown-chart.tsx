@@ -17,9 +17,9 @@ export interface BreakdownItem {
 // final net figure, visually distinguished so it doesn't read as just
 // another line item.
 const KIND_COLORS: Record<BreakdownKind, string> = {
-  income: "#0EA672",
-  expense: "#E8735F",
-  result: "#076B49",
+  income: "var(--primary)",
+  expense: "var(--highlight)", // reuses the site's established coral token, rather than a slightly different custom red
+  result: "var(--primary-hover)",
 };
 
 function fmtGBP(n: number): string {

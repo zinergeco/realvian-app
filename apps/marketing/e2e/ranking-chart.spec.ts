@@ -62,3 +62,27 @@ test.describe("Ranking chart on city market reports", () => {
     expect(response?.status()).toBe(404);
   });
 });
+
+test.describe("Radar chart on comparison posts", () => {
+  test("renders both areas' real shapes overlaid, reusing the same component the /compare page uses", async ({ page }) => {
+    await page.goto("/blog/didsbury-vs-chorlton");
+    await page.waitForTimeout(1000);
+
+    const polygons = await page.locator(".recharts-radar-polygon").count();
+    expect(polygons).toBe(2);
+
+    const legendText = await page.locator(".recharts-legend-wrapper").textContent();
+    expect(legendText).toContain("Didsbury");
+    expect(legendText).toContain("Chorlton");
+  });
+
+  test("a non-comparison post (e.g. a ranking post) does not render a radar chart it has no data for", async ({ page }) => {
+    // The radar needs two full Area objects — only comparison posts
+    // have exactly two areaSlugs. This confirms the kind-gating
+    // actually works, not just that comparison posts happen to show one.
+    await page.goto("/blog/highest-rental-yield-areas-uk");
+    await page.waitForTimeout(1000);
+    const polygons = await page.locator(".recharts-radar-polygon").count();
+    expect(polygons).toBe(0);
+  });
+});

@@ -12,6 +12,7 @@ import { Badge, Card, SectionLabel } from "@/components/ui";
 import { CitySkyline, IlloPipeline } from "@/components/illustrations";
 import { AffiliateOffer } from "@/components/commercial";
 import { RankingChart } from "@/components/ranking-chart";
+import { DimensionRadar } from "@/components/dimension-radar";
 import {
   loadActiveProducts,
   selectProductsForPost,
@@ -308,6 +309,26 @@ export default async function BlogPostPage({
           </section>
           </div>
         ))}
+
+        {/* Comparison posts: overlay the two areas' six dimensions,
+            reusing the exact same radar chart the /compare page uses.
+            Deliberately outside the generic sections loop above — this
+            needs two full Area objects (all six dimensions each), not
+            the flat {label,value} shape PostSection.chart carries for
+            ranking/city-report posts, so it can't reuse that field. */}
+        {post.kind === "comparison" && referencedAreas.length === 2 && (
+          <div className="max-w-[720px] mx-auto px-5 sm:px-8 -mt-6 mb-10">
+            <p className="text-[12.5px] text-[var(--text-muted)] mb-3">
+              {referencedAreas[0]!.district} vs {referencedAreas[1]!.district}, across all six dimensions
+            </p>
+            <DimensionRadar
+              dimensionsA={referencedAreas[0]!.dimensions}
+              dimensionsB={referencedAreas[1]!.dimensions}
+              nameA={referencedAreas[0]!.district}
+              nameB={referencedAreas[1]!.district}
+            />
+          </div>
+        )}
 
         {/* After-content placement */}
         {footOffer && (

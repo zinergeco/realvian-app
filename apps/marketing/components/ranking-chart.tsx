@@ -2,8 +2,8 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 
-const COLOR = "#0EA672"; // matches --primary
-const COLOR_LEADER = "#F2B134"; // matches --color-gold, the #1 spot stands out
+const COLOR = "var(--primary)";
+const COLOR_LEADER = "var(--color-gold)"; // the #1 spot stands out
 
 interface ChartRow {
   label: string;

@@ -11,10 +11,17 @@ import { scoreVerdict } from "@/lib/areas";
 // primary (emerald), neutral (muted gray) — so a marker's colour means
 // the same thing here as it does everywhere else on the site, not a
 // separate colour language invented just for this map.
+// Theme-aware, not hardcoded — resolves against the page's real
+// light/dark CSS variables at render time. Previously hardcoded to
+// the light-mode hex values only, which meant markers stayed a
+// visibly duller green in dark mode while every button and badge
+// around them correctly switched to the brighter dark-mode primary
+// (#0EA672 vs #22D98A) — confirmed as a real, visible mismatch before
+// fixing, not just a theoretical one.
 const TONE_COLORS: Record<string, string> = {
-  accent: "#F2B134",
-  primary: "#0EA672",
-  neutral: "#8A93A3",
+  accent: "var(--color-gold)",
+  primary: "var(--primary)",
+  neutral: "var(--text-muted)",
 };
 
 function fmtGBP(n: number): string {

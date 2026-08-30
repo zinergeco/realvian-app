@@ -3,8 +3,8 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
 import type { PortfolioRentPoint } from "@/lib/rent-comparison";
 
-const COLOR_ABOVE = "#0EA672"; // matches --primary — rented above area average
-const COLOR_BELOW = "#F2B134"; // matches --color-gold — rented below area average, worth a rent review
+const COLOR_ABOVE = "var(--primary)"; // rented above area average
+const COLOR_BELOW = "var(--color-gold)"; // rented below area average, worth a rent review
 
 function fmtGBP(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);
