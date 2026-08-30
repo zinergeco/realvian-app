@@ -29,3 +29,23 @@ export const STATUS_LABELS: Record<WatchlistStatus, string> = {
   under_offer: "Under offer",
   withdrawn: "Withdrawn",
 };
+
+/**
+ * Generic over any item with a `status` field, rather than importing
+ * the real WatchlistItem type from property-watchlist.ts — that file
+ * imports postgres for its data-access functions, and this file's
+ * whole reason for existing (see the comment at the top) is staying
+ * safe to import from a client component. A generic keeps that true
+ * without needing type-only import gymnastics.
+ */
+export function groupByStatus<T extends { status: WatchlistStatus }>(
+  items: T[],
+): Record<WatchlistStatus, T[]> {
+  const groups = Object.fromEntries(
+    WATCHLIST_STATUSES.map((s) => [s, [] as T[]]),
+  ) as Record<WatchlistStatus, T[]>;
+  for (const item of items) {
+    groups[item.status].push(item);
+  }
+  return groups;
+}

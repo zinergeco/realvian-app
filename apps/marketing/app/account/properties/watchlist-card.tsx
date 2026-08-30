@@ -55,6 +55,7 @@ export function WatchlistCard({ item }: { item: WatchlistItem }) {
           <select
             key={item.status}
             name="status"
+            aria-label={`Change status for ${item.nickname}`}
             defaultValue={item.status}
             onChange={(e) => e.currentTarget.form?.requestSubmit()}
             className="text-[12.5px] bg-[var(--bg-subtle)] border border-[var(--border-strong)]
