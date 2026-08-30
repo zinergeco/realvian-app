@@ -13,6 +13,20 @@ test.describe("Security headers", () => {
     expect(csp).not.toContain("script-src 'unsafe-inline'");
   });
 
+  test("the CSP allows the current map tile domain, not a stale one that no longer serves usable tiles", async ({ request }) => {
+    // CARTO's free raster tile service began requiring an API key
+    // after this was first built — confirmed live in production
+    // (a visible "API KEY REQUIRED" watermark), not a theoretical
+    // regression. Switched to standard OpenStreetMap tiles; this
+    // locks in that the CSP's img-src was updated to match, since a
+    // correct tile URL blocked by a stale CSP would be an equally
+    // broken map with a different, more confusing failure mode.
+    const res = await request.get("/");
+    const csp = res.headers()["content-security-policy"] ?? "";
+    expect(csp).toContain("tile.openstreetmap.org");
+    expect(csp).not.toContain("basemaps.cartocdn.com");
+  });
+
   test("the CSP nonce in the header exactly matches the nonce on the real rendered script tag", async ({ request }) => {
     // Genuinely the thing that matters — a nonce that doesn't match
     // means either the theme script silently fails to run (breaking

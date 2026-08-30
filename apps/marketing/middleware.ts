@@ -39,7 +39,11 @@ function buildCsp(nonce: string): string {
     // CARTO's free, keyless basemap service (their license explicitly
     // permits this kind of use, unlike raw OpenStreetMap tile servers
     // which ask production apps to use an alternative provider).
-    `img-src 'self' data: https://*.basemaps.cartocdn.com`,
+    // tile.openstreetmap.org: the interactive area map's tile images —
+    // switched from CARTO's raster tiles after they began requiring an
+    // API key (confirmed live, not theoretical — see area-map.tsx).
+    // Standard OSM tile subdomains: a, b, c.
+    `img-src 'self' data: https://*.tile.openstreetmap.org`,
     `connect-src 'self'`,
     `frame-ancestors 'self'`,
     `base-uri 'self'`,

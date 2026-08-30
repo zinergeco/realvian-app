@@ -51,9 +51,18 @@ export function AreaMap({ areas }: { areas: Area[] }) {
             usage policy asks production apps to use an alternative
             provider). Attribution below is required by that license. */}
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          maxZoom={18}
+          // CARTO's free raster tile service began requiring an API
+          // key at some point after this was first built — confirmed
+          // live on production showing a visible "API KEY REQUIRED"
+          // watermark, not a theoretical concern. Standard OpenStreetMap
+          // tiles are the genuinely keyless fallback: no account, no
+          // key, works today. Their own usage policy asks high-volume
+          // production apps to use an alternative provider eventually,
+          // worth revisiting if traffic grows, but this is the honest,
+          // immediate fix for a map that's currently broken for every visitor.
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          maxZoom={19}
         />
         {areas.map((area) => {
           const verdict = scoreVerdict(area.realvianScore);
