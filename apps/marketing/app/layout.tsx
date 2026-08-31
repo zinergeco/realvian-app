@@ -3,6 +3,7 @@ import { cookies, headers } from "next/headers";
 import { ThemeProvider, themeScript, type Theme } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { getCurrentUser } from "@/lib/public-auth";
+import { buildSearchIndex } from "@/lib/search-index";
 import { SiteFooter } from "@/components/site-footer";
 import { organizationSchema, websiteSchema } from "@/lib/site-schema";
 import "./globals.css";
@@ -74,6 +75,7 @@ export default async function RootLayout({
   // header must never guess or default to "signed out" while a valid
   // session cookie exists. Fails closed if the database is briefly down.
   const user = await getCurrentUser();
+  const searchIndexData = buildSearchIndex();
 
   return (
     <html
@@ -101,7 +103,10 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
         <ThemeProvider initialTheme={theme}>
-          <SiteHeader user={user ? { name: user.name, email: user.email } : null} />
+          <SiteHeader
+            user={user ? { name: user.name, email: user.email } : null}
+            searchIndex={searchIndexData}
+          />
           <main>{children}</main>
           <SiteFooter />
         </ThemeProvider>

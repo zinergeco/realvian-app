@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Wordmark } from "./wordmark";
 import { ThemeToggle } from "./theme-toggle";
 import { Button, cx } from "./ui";
+import { SiteSearch } from "./site-search";
+import type { SearchItem } from "@/lib/search-index";
 
 const NAV = [
   { label: "Areas", href: "/areas" },
@@ -17,8 +19,10 @@ const NAV = [
 
 export function SiteHeader({
   user,
+  searchIndex,
 }: {
   user: { name: string | null; email: string } | null;
+  searchIndex: SearchItem[];
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -68,6 +72,7 @@ export function SiteHeader({
             </nav>
 
             <div className="flex items-center gap-2.5">
+              <SiteSearch index={searchIndex} />
               <ThemeToggle />
               {user ? (
                 <Link href="/account" className="hidden sm:block">
