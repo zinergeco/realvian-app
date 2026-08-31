@@ -35,3 +35,42 @@ test.describe("OpenGraph share images", () => {
     expect(res.headers()["content-type"]).toBe("image/png");
   });
 });
+
+test.describe("Blog post OpenGraph share images", () => {
+  test("a ranking post's og:image is its own route, showing the real leading area's data", async ({ page, request }) => {
+    await page.goto("/blog/highest-rental-yield-areas-uk");
+    const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+    expect(ogImage).toContain("/blog/highest-rental-yield-areas-uk/opengraph-image");
+
+    const res = await request.get(new URL(ogImage!).pathname);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toBe("image/png");
+    const body = await res.body();
+    expect(body.length).toBeGreaterThan(10_000);
+  });
+
+  test("a comparison post's og:image is its own route, showing both real areas head-to-head", async ({ page, request }) => {
+    await page.goto("/blog/didsbury-vs-chorlton");
+    const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+    expect(ogImage).toContain("/blog/didsbury-vs-chorlton/opengraph-image");
+
+    const res = await request.get(new URL(ogImage!).pathname);
+    expect(res.status()).toBe(200);
+    const body = await res.body();
+    expect(body.length).toBeGreaterThan(10_000);
+  });
+
+  test("a city-report post's og:image route returns a real, substantial image", async ({ request }) => {
+    const res = await request.get("/blog/manchester-property-market-report/opengraph-image");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toBe("image/png");
+    const body = await res.body();
+    expect(body.length).toBeGreaterThan(10_000);
+  });
+
+  test("an invalid blog slug's og:image route degrades gracefully to a real fallback image, not an error", async ({ request }) => {
+    const res = await request.get("/blog/not-a-real-post-xyz/opengraph-image");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toBe("image/png");
+  });
+});
