@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Button, Card, SectionLabel } from "@/components/ui";
+import { getAllAreas } from "@/lib/areas";
+import { ClientMatcher } from "@/components/client-matcher";
 
 export const metadata: Metadata = {
   title: "Agent Portal — List Your Agency & Client Tools",
@@ -10,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default function AgentPortalPage() {
+  const areas = getAllAreas();
   return (
     <>
       <section className="relative overflow-hidden border-b border-[var(--border)]">
@@ -33,9 +36,10 @@ export default function AgentPortalPage() {
             Agent portal
           </h1>
           <p className="text-[16px] leading-[1.65] text-[var(--text-secondary)] max-w-[620px]">
-            Two things are genuinely useful to an agent today: a listing
-            presence on the area pages you cover, and a live comparison
-            tool you can pull up in front of a client. Both are built on
+            Three things are genuinely useful to an agent today: a listing
+            presence on the area pages you cover, a client-matching tool for
+            narrowing down where to show someone, and a live comparison
+            tool you can pull up in front of a client. All built on
             exactly the same data as the public site — nothing separate
             or agent-only about the numbers.
           </p>
@@ -76,6 +80,20 @@ export default function AgentPortalPage() {
             </Link>
           </Card>
         </div>
+
+        <Card className="p-6 mb-10">
+          <Badge tone="primary" className="self-start mb-3">Live now</Badge>
+          <h2 className="text-[17px] font-semibold text-[var(--text-primary)] mb-2">
+            Match a client to an area
+          </h2>
+          <p className="text-[14px] leading-relaxed text-[var(--text-secondary)] mb-5">
+            Tell it what the client actually cares about — schools, safety,
+            transport, whatever they mentioned in the first conversation —
+            plus a budget, and get back the areas that genuinely fit, ranked
+            by that specific match, not just by overall score.
+          </p>
+          <ClientMatcher areas={areas} />
+        </Card>
 
         <Card className="p-6">
           <h2 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
