@@ -506,3 +506,24 @@ export const POST_KIND_LABELS: Record<PostKind, string> = {
   comparison: "Comparison",
   "area-guide": "Area guide",
 };
+
+/**
+ * Resolves a post's real, complete set of related cities from its
+ * areaSlugs, not from post.tags. Tags are incomplete for this
+ * specific purpose: ranking posts carry generic topic tags
+ * ("Investment", "Ranking") with no city at all even though they
+ * reference areas across many cities, and cross-city comparison
+ * posts only tag "Comparison" with no city when the two areas aren't
+ * in the same city. Resolving through the real referenced areas
+ * instead means a city filter genuinely finds every post that
+ * mentions that city, not just the ones whose tags happened to
+ * include it.
+ */
+export function getPostCities(post: BlogPost, allAreas: Area[]): string[] {
+  const cities = new Set<string>();
+  for (const slug of post.areaSlugs) {
+    const area = allAreas.find((a) => a.slug === slug);
+    if (area) cities.add(area.city);
+  }
+  return [...cities];
+}

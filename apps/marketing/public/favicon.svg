@@ -1,5 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#0EA672"/>
-  <text x="32" y="45" font-family="Georgia, serif" font-size="38"
-        font-weight="600" fill="#FFFFFF" text-anchor="middle">R</text>
+  <!-- Three-building skyline: tall central tower flanked by two
+       shorter buildings, bold enough to read clearly at 16px -->
+  <rect x="10" y="34" width="12" height="20" fill="#FFFFFF"/>
+  <rect x="26" y="16" width="14" height="38" fill="#FFFFFF"/>
+  <rect x="44" y="26" width="11" height="28" fill="#FFFFFF"/>
+  <!-- Windows on the tall central tower only, kept minimal so it
+       still reads clearly at tiny sizes -->
+  <rect x="30" y="22" width="3" height="3" fill="#0EA672"/>
+  <rect x="36" y="22" width="3" height="3" fill="#0EA672"/>
+  <rect x="30" y="30" width="3" height="3" fill="#0EA672"/>
+  <rect x="36" y="30" width="3" height="3" fill="#0EA672"/>
+  <rect x="30" y="38" width="3" height="3" fill="#0EA672"/>
+  <rect x="36" y="38" width="3" height="3" fill="#0EA672"/>
 </svg>
