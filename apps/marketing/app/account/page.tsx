@@ -124,9 +124,9 @@ export default async function AccountPage() {
                 className="flex items-center gap-4 p-3.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-subtle)]"
               >
                 <div className="flex items-center gap-2 shrink-0">
-                  <ScoreRing score={c.a.realvianScore} size={40} />
+                  <ScoreRing score={c.a.realvianScore} size={76} />
                   <span className="text-[11px] text-[var(--text-muted)]">vs</span>
-                  <ScoreRing score={c.b.realvianScore} size={40} />
+                  <ScoreRing score={c.b.realvianScore} size={76} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <Link
@@ -187,7 +187,7 @@ export default async function AccountPage() {
                 key={f.id}
                 className="flex items-center gap-4 p-3.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-subtle)]"
               >
-                <ScoreRing score={f.area.realvianScore} size={40} />
+                <ScoreRing score={f.area.realvianScore} size={76} />
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/areas/${f.area.slug}`}

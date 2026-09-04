@@ -60,12 +60,20 @@ export function ScoreRing({
           >
             {score}
           </div>
-          <div
-            className="tracking-[0.1em] uppercase text-[var(--text-muted)] mt-0.5"
-            style={{ fontSize: Math.max(8, size * 0.085) }}
-          >
-            {label}
-          </div>
+          {/* Below this size, the label's minimum legible font size
+              no longer fits the ring's available inner width and
+              would silently clip (this exact bug is what broke the
+              account page's rings at size=40 — "SCORE" rendered as
+              "COR" with both ends cut off). Hiding it below a safe
+              threshold is more honest than letting it overflow. */}
+          {size >= 60 && (
+            <div
+              className="tracking-[0.1em] uppercase text-[var(--text-muted)] mt-0.5"
+              style={{ fontSize: Math.max(8, size * 0.085) }}
+            >
+              {label}
+            </div>
+          )}
         </div>
       </div>
       <span className="sr-only">{score} out of 100</span>
