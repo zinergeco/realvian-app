@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Badge, Card, SectionLabel } from "@/components/ui";
+import { ApiExplorer } from "@/components/api-explorer";
 
 export const metadata: Metadata = {
   title: "Developer API",
@@ -186,6 +187,9 @@ export default function DevelopersPage() {
           description="Resolve any UK postcode or outcode to its Realvian area, if we cover it. Falls back to city/region from a neighbouring covered outcode when the exact one isn't in our dataset yet, same logic the listing and watchlist forms use."
         >
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/lookup?postcode=M20+2RN`}</CodeBlock>
+          <div className="mt-4">
+            <ApiExplorer />
+          </div>
         </Endpoint>
 
         <Endpoint
