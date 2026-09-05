@@ -11,6 +11,7 @@ import { AreaCard, DataNote } from "@/components/area-viz";
 import { Badge, Card, SectionLabel } from "@/components/ui";
 import { areasItemListSchema } from "@/lib/site-schema";
 import { AreaMapClient } from "@/components/area-map-client";
+import { RecentlyViewed } from "@/components/recently-viewed";
 
 export const metadata: Metadata = {
   title: "UK Area Guides — Property Data for Every Postcode",
@@ -94,6 +95,11 @@ export default function AreasHubPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ══════════ RECENTLY VIEWED ══════════ */}
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-10">
+        <RecentlyViewed />
       </section>
 
       {/* ══════════ MAP ══════════ */}

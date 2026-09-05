@@ -35,6 +35,7 @@ import { getOverride, mediaUrl, focalStyle } from "@/lib/cms";
 import { getCurrentUser } from "@/lib/public-auth";
 import { isAreaFollowed } from "@/lib/followed-areas";
 import { FollowAreaButton } from "./follow-area-button";
+import { RecordAreaView } from "@/components/record-area-view";
 
 /* ── Static generation: every area page pre-rendered at build time ── */
 export function generateStaticParams() {
@@ -161,6 +162,13 @@ export default async function AreaPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <RecordAreaView
+        slug={area.slug}
+        district={area.district}
+        city={area.city}
+        outcode={area.outcode}
+        realvianScore={area.realvianScore}
       />
 
       {/* ══════════ HERO ══════════ */}

@@ -123,6 +123,14 @@ export default function DevelopersPage() {
           description="List every area Realvian covers. Supports optional city and region filters, and format=csv for a spreadsheet-ready download instead of JSON."
         >
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/areas?city=Manchester`}</CodeBlock>
+          <div className="mt-4">
+            <ApiExplorer
+              endpoint="/api/v1/areas"
+              fields={[
+                { key: "city", prefix: "?city=", defaultValue: "Manchester", ariaLabel: "City to filter by" },
+              ]}
+            />
+          </div>
           <p className="text-[13px] text-[var(--text-muted)] mt-3 mb-1.5">Response</p>
           <CodeBlock>{`{
   "data": [
@@ -169,6 +177,15 @@ export default function DevelopersPage() {
           description="Full detail for two areas side by side in a single request — the same data the public comparison tool uses. Requires both ?a= and ?b= slugs. Returns 400 if either is missing, 404 if either slug doesn't exist."
         >
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/compare?a=didsbury-m20&b=chorlton-m21`}</CodeBlock>
+          <div className="mt-4">
+            <ApiExplorer
+              endpoint="/api/v1/compare"
+              fields={[
+                { key: "a", prefix: "?a=", defaultValue: "didsbury-m20", ariaLabel: "First area slug" },
+                { key: "b", prefix: "&b=", defaultValue: "chorlton-m21", ariaLabel: "Second area slug" },
+              ]}
+            />
+          </div>
         </Endpoint>
 
         <Endpoint
@@ -188,7 +205,12 @@ export default function DevelopersPage() {
         >
           <CodeBlock>{`curl https://realvian.co.uk/api/v1/lookup?postcode=M20+2RN`}</CodeBlock>
           <div className="mt-4">
-            <ApiExplorer />
+            <ApiExplorer
+              endpoint="/api/v1/lookup"
+              fields={[
+                { key: "postcode", prefix: "?postcode=", defaultValue: "M20 2RN", ariaLabel: "Postcode to look up" },
+              ]}
+            />
           </div>
         </Endpoint>
 

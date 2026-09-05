@@ -1,20 +1,23 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Every check here waits on a real, observable condition (specific
- * response text appearing) rather than a fixed delay — the first
- * version of this file clicked "Run request" and immediately checked
- * body text with zero wait for the async fetch() to resolve, which
- * fails close to 100% of the time since the network round-trip
- * hasn't completed yet. Using expect(locator).toContainText(),
- * which auto-retries, is the fix, not a workaround.
+ * Written when this page had a single explorer instance (/lookup).
+ * A later batch generalized ApiExplorer to a reusable component and
+ * added two more instances (/areas, /compare) on the same page,
+ * which broke this file's unclick-scoped `getByRole('button', ...)`
+ * calls — "strict mode violation: resolved to 3 elements". Fixed by
+ * targeting the lookup explorer specifically (nth(2), its real DOM
+ * position — confirmed directly against the page source, not
+ * assumed), since these tests are semantically about postcode
+ * lookups specifically, not about whichever explorer happens to be
+ * first on the page.
  */
 test.describe("Interactive API explorer", () => {
   test("running a request against a real postcode returns the real API response", async ({ page }) => {
     await page.goto("/developers");
-    await page.getByRole("button", { name: "Run request" }).click();
+    await page.getByRole("button", { name: "Run request" }).nth(2).click();
 
-    const responsePanel = page.locator("pre[tabindex='0']");
+    const responsePanel = page.locator("pre[tabindex='0']").nth(0);
     await expect(responsePanel).toContainText("Didsbury", { timeout: 5000 });
     await expect(responsePanel).toContainText("Manchester");
 
@@ -26,9 +29,9 @@ test.describe("Interactive API explorer", () => {
     await page.goto("/developers");
     const input = page.getByLabel("Postcode to look up");
     await input.fill("EH1 1AA");
-    await page.getByRole("button", { name: "Run request" }).click();
+    await page.getByRole("button", { name: "Run request" }).nth(2).click();
 
-    const responsePanel = page.locator("pre[tabindex='0']");
+    const responsePanel = page.locator("pre[tabindex='0']").nth(0);
     await expect(responsePanel).toContainText(/edinburgh/i, { timeout: 5000 });
   });
 
@@ -36,9 +39,9 @@ test.describe("Interactive API explorer", () => {
     await page.goto("/developers");
     const input = page.getByLabel("Postcode to look up");
     await input.fill("ZZ99 9ZZ");
-    await page.getByRole("button", { name: "Run request" }).click();
+    await page.getByRole("button", { name: "Run request" }).nth(2).click();
 
-    const responsePanel = page.locator("pre[tabindex='0']");
+    const responsePanel = page.locator("pre[tabindex='0']").nth(0);
     await expect(responsePanel).toContainText("false", { timeout: 5000 });
 
     const body = await page.locator("body").innerText();
@@ -47,9 +50,9 @@ test.describe("Interactive API explorer", () => {
 
   test("the response panel is keyboard-focusable, so keyboard-only users can scroll a long response", async ({ page }) => {
     await page.goto("/developers");
-    await page.getByRole("button", { name: "Run request" }).click();
+    await page.getByRole("button", { name: "Run request" }).nth(2).click();
 
-    const responsePanel = page.locator("pre[tabindex='0']");
+    const responsePanel = page.locator("pre[tabindex='0']").nth(0);
     await expect(responsePanel).toBeVisible({ timeout: 5000 });
   });
 });

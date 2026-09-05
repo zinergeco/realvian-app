@@ -42,6 +42,20 @@ export default async function PropertyWatchlistPage() {
         wherever you found each one.
       </p>
 
+      {items.length > 0 && (
+        <div className="flex flex-wrap gap-x-5 gap-y-1.5 mb-8">
+          {(() => {
+            const grouped = groupByStatus(items);
+            return WATCHLIST_STATUSES.filter((s) => grouped[s].length > 0).map((status) => (
+              <span key={status} className="text-[13px] text-[var(--text-secondary)]">
+                <strong className="text-[var(--text-primary)] tnum">{grouped[status].length}</strong>{" "}
+                {STATUS_LABELS[status]}
+              </span>
+            ));
+          })()}
+        </div>
+      )}
+
       {items.length === 0 ? (
         <div className="grid lg:grid-cols-[1fr_340px] gap-8">
           <div className="order-2 lg:order-1">
