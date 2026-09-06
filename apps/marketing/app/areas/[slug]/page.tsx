@@ -36,6 +36,7 @@ import { getCurrentUser } from "@/lib/public-auth";
 import { isAreaFollowed } from "@/lib/followed-areas";
 import { FollowAreaButton } from "./follow-area-button";
 import { RecordAreaView } from "@/components/record-area-view";
+import { AreaPdfExport } from "@/components/area-pdf-export";
 
 /* ── Static generation: every area page pre-rendered at build time ── */
 export function generateStaticParams() {
@@ -246,6 +247,7 @@ export default async function AreaPage({
                   isLoggedIn={Boolean(user)}
                   initiallyFollowed={isFollowed}
                 />
+                <AreaPdfExport area={area} />
                 <Link href="/areas">
                   <Button variant="secondary">Browse all areas</Button>
                 </Link>
