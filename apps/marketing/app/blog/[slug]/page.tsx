@@ -13,6 +13,7 @@ import { CitySkyline, IlloPipeline } from "@/components/illustrations";
 import { AffiliateOffer } from "@/components/commercial";
 import { RankingChart } from "@/components/ranking-chart";
 import { DimensionRadar } from "@/components/dimension-radar";
+import { ReportPdfExport } from "@/components/report-pdf-export";
 import {
   loadActiveProducts,
   selectProductsForPost,
@@ -182,6 +183,10 @@ export default async function BlogPostPage({
           <p className="mt-5 text-[17px] leading-[1.65] text-[var(--text-secondary)] max-w-[620px]">
             {post.description}
           </p>
+
+          <div className="mt-6">
+            <ReportPdfExport post={post} />
+          </div>
 
           {resolved.heroMedia && (
             <div className="mt-8 rounded-[var(--radius-lg)] overflow-hidden border border-[var(--border)] max-w-[820px]">
