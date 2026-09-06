@@ -13,6 +13,7 @@ import { saveComparisonAction } from "@/lib/comparison-actions";
 import { ScoreRing, DataNote } from "./area-viz";
 import { Button, Card, cx } from "./ui";
 import { DimensionRadar } from "./dimension-radar";
+import { ComparisonPdfExport } from "./comparison-pdf-export";
 
 /* ── Area picker dropdown ───────────────────────── */
 function AreaPicker({
@@ -500,6 +501,7 @@ export function ComparisonView({
             <Button variant="secondary" onClick={copyLink}>
               {copied ? "Link copied" : "Copy shareable link"}
             </Button>
+            <ComparisonPdfExport a={a} b={b} />
             {isLoggedIn ? (
               <form action={saveAction}>
                 <input type="hidden" name="areaA" value={a.slug} />
