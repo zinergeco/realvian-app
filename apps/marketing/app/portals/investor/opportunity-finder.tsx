@@ -6,6 +6,7 @@ import type { Area } from "@/lib/areas";
 import { Card, cx } from "@/components/ui";
 import { ScoreRing } from "@/components/area-viz";
 import { YieldPriceScatter } from "@/components/yield-price-scatter";
+import { ShortlistPdfExport } from "@/components/shortlist-pdf-export";
 
 type SortKey = "investmentScore" | "grossYield" | "fiveYearGrowth" | "avgPrice";
 
@@ -109,9 +110,12 @@ export function OpportunityFinder({ areas }: { areas: Area[] }) {
         </div>
       </Card>
 
-      <p className="text-[13px] text-[var(--text-muted)] mb-4">
-        {filtered.length} area{filtered.length === 1 ? "" : "s"} match{filtered.length === 1 ? "es" : ""}
-      </p>
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <p className="text-[13px] text-[var(--text-muted)]">
+          {filtered.length} area{filtered.length === 1 ? "" : "s"} match{filtered.length === 1 ? "es" : ""}
+        </p>
+        <ShortlistPdfExport areas={filtered} minYield={minYield} maxPrice={maxPrice} city={city} />
+      </div>
 
       {filtered.length > 0 && (
         <Card className="p-5 mb-6">
