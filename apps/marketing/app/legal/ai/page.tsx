@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AiDisclosurePage() {
   return (
-    <LegalLayout eyebrow="Legal" title="AI & Content Disclosure" lastUpdated="16 August 2026">
+    <LegalLayout eyebrow="Legal" title="AI & Content Disclosure" lastUpdated="12 September 2026">
       <p>
         This page explains, plainly, how the numbers and reports on Realvian
         are actually produced — because "AI-generated" means very different
@@ -21,17 +21,19 @@ export default function AiDisclosurePage() {
       <h2>The Realvian Score</h2>
       <p>
         Area scores are <strong>not</strong> written or judged by a language
-        model. They're computed by a fixed scoring engine: raw public data
-        goes in, a documented weighting formula runs, a number comes out.
-        The same inputs always produce the same score. Every score on the
-        Site can be decomposed into the dimensions that produced it — that
-        breakdown is shown on the area page itself, not hidden in a black
-        box.
+        model. Each score is a fixed value, the same for every visitor, not
+        regenerated per request or influenced by who's asking. The six
+        dimensions shown alongside every score — schools, transport, safety,
+        and so on — are real, independently meaningful numbers in their own
+        right, shown transparently rather than hidden. A single formula that
+        combines those dimensions into the headline score is planned but not
+        yet built; today the two are set separately, not one derived from
+        the other.
       </p>
       <p>
-        Where we don't yet have enough real data for a dimension, the engine
-        withholds that dimension rather than estimate it, and the area page
-        says so.
+        Where we don't yet have enough real data for a dimension, the area
+        page says so rather than showing a number that looks more certain
+        than it is.
       </p>
 
       <h2>Market reports and comparisons</h2>
@@ -68,7 +70,7 @@ export default function AiDisclosurePage() {
       <p>
         Regardless of how a figure was produced, nothing on the Site is
         financial, legal, or investment advice. See our{" "}
-        <a href="/legal/terms">Terms of Use</a> for the full position.
+        <a href="/legal/terms" style={{ textDecoration: "underline" }}>Terms of Use</a> for the full position.
       </p>
 
       <h2>Contact</h2>
