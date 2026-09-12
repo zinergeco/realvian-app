@@ -8,6 +8,7 @@ import { IlloPortfolio } from "@/components/illustrations";
 import { AddPropertyForm } from "./add-property-form";
 import { PropertyCard } from "./property-card";
 import { PortfolioRentChart } from "@/components/portfolio-rent-chart";
+import { CompliancePdfExport } from "@/components/compliance-pdf-export";
 
 export const metadata: Metadata = {
   title: "Landlord Portal — Compliance Tracker",
@@ -86,10 +87,16 @@ export default async function LandlordPortalPage() {
       >
         Compliance tracker
       </h1>
-      <p className="text-[14.5px] text-[var(--text-secondary)] mb-8 max-w-[540px]">
+      <p className="text-[14.5px] text-[var(--text-secondary)] mb-6 max-w-[540px]">
         EPC, gas safety and EICR deadlines across your properties, sorted by
         what needs attention first.
       </p>
+
+      {properties.length > 0 && (
+        <div className="mb-6">
+          <CompliancePdfExport properties={properties} />
+        </div>
+      )}
 
       {(overdueCount > 0 || urgentCount > 0) && (
         <div className="flex gap-3 mb-6">
