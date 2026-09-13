@@ -12,6 +12,7 @@ import { listApiKeys } from "@/lib/api-keys";
 import { ApiKeysSection } from "./api-keys-section";
 import { Badge, Card, SectionLabel, Button } from "@/components/ui";
 import { ScoreRing } from "@/components/area-viz";
+import { AccountSummaryPdfExport } from "@/components/account-summary-pdf-export";
 
 export const metadata: Metadata = {
   title: "My account",
@@ -93,6 +94,12 @@ export default async function AccountPage() {
           </div>
         </div>
       </Card>
+
+      {(savedWithAreas.length > 0 || followedWithAreas.length > 0) && (
+        <div className="mb-6">
+          <AccountSummaryPdfExport comparisons={savedWithAreas} followed={followedWithAreas} />
+        </div>
+      )}
 
       {/* ══════════ SAVED COMPARISONS ══════════ */}
       <Card className="p-6 mb-6">
