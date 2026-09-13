@@ -26,7 +26,7 @@ test.describe("Pricing page", () => {
 
     const hrefs = await notifyLinks.evaluateAll((els) => els.map((el) => el.getAttribute("href")));
     for (const href of hrefs) {
-      expect(href).toMatch(/^mailto:data@realvian\.co\.uk/);
+      expect(href).toMatch(/^mailto:hello@realvian\.co\.uk/);
     }
   });
 

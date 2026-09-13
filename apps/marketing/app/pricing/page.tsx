@@ -134,7 +134,7 @@ export default function PricingPage() {
               <span className="text-[38px] font-semibold text-[var(--text-primary)] tnum">£19</span>
               <span className="text-[14px] text-[var(--text-muted)]"> / month, planned</span>
             </div>
-            <a href="mailto:data@realvian.co.uk?subject=Notify%20me%20-%20Pro%20plan" className="block mb-6">
+            <a href="mailto:hello@realvian.co.uk?subject=Notify%20me%20-%20Pro%20plan" className="block mb-6">
               <Button variant="premium" className="w-full justify-center">
                 Get notified at launch
               </Button>
@@ -153,7 +153,7 @@ export default function PricingPage() {
               <span className="text-[38px] font-semibold text-[var(--text-primary)] tnum">£79</span>
               <span className="text-[14px] text-[var(--text-muted)]"> / month, planned</span>
             </div>
-            <a href="mailto:data@realvian.co.uk?subject=Notify%20me%20-%20Agency%20plan" className="block mb-6">
+            <a href="mailto:hello@realvian.co.uk?subject=Notify%20me%20-%20Agency%20plan" className="block mb-6">
               <Button variant="secondary" className="w-full justify-center">
                 Get notified at launch
               </Button>
