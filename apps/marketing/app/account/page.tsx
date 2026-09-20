@@ -7,6 +7,7 @@ import { deleteComparisonAction } from "@/lib/comparison-actions";
 import { listUserComparisons } from "@/lib/comparisons";
 import { unfollowAreaFormAction } from "@/lib/followed-area-actions";
 import { listFollowedAreas } from "@/lib/followed-areas";
+import { listWatchlist } from "@/lib/property-watchlist";
 import { getAreaBySlug } from "@/lib/areas";
 import { listApiKeys } from "@/lib/api-keys";
 import { ApiKeysSection } from "./api-keys-section";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 const TIER_LABELS: Record<string, string> = {
-  free: "Free",
+  free: "Beta Access",
   pro: "Pro",
   investor: "Investor",
   business: "Business",
@@ -52,6 +53,7 @@ export default async function AccountPage() {
     );
 
   const followed = await listFollowedAreas(user.id);
+  const watchlist = await listWatchlist(user.id);
   const apiKeys = await listApiKeys(user.id);
   const followedWithAreas = followed
     .map((f) => ({ ...f, area: getAreaBySlug(f.areaSlug) }))
@@ -95,9 +97,9 @@ export default async function AccountPage() {
         </div>
       </Card>
 
-      {(savedWithAreas.length > 0 || followedWithAreas.length > 0) && (
+      {(savedWithAreas.length > 0 || followedWithAreas.length > 0 || watchlist.length > 0) && (
         <div className="mb-6">
-          <AccountSummaryPdfExport comparisons={savedWithAreas} followed={followedWithAreas} />
+          <AccountSummaryPdfExport comparisons={savedWithAreas} followed={followedWithAreas} watchlist={watchlist} />
         </div>
       )}
 

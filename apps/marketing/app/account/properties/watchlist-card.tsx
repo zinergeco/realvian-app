@@ -3,6 +3,7 @@
 import { updateWatchlistStatusAction, removeWatchlistAction } from "@/lib/property-watchlist-actions";
 import { WATCHLIST_STATUSES, STATUS_LABELS } from "@/lib/watchlist-constants";
 import type { WatchlistItem } from "@/lib/property-watchlist";
+import { getAreaByOutcode } from "@/lib/areas";
 import { Badge, Card } from "@/components/ui";
 
 const STATUS_TONE: Record<string, "primary" | "accent" | "neutral" | "highlight"> = {
@@ -16,6 +17,39 @@ const STATUS_TONE: Record<string, "primary" | "accent" | "neutral" | "highlight"
 
 function fmtGBP(n: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(n);
+}
+
+/**
+ * Compares a watchlisted property's own price against its area's real
+ * average — genuinely new analytical value using only data that
+ * already exists (getAreaByOutcode, already used by the public
+ * lookup API), not a new data source or schema change. Only renders
+ * when both a price was entered and the outcode resolves to a real,
+ * covered area — silently absent otherwise rather than guessing.
+ */
+function AreaPriceContext({ item }: { item: WatchlistItem }) {
+  if (item.price === null || !item.outcode) return null;
+  const area = getAreaByOutcode(item.outcode);
+  if (!area) return null;
+
+  const diffPct = ((item.price - area.avgPrice) / area.avgPrice) * 100;
+  const isBelow = diffPct < 0;
+  const rounded = Math.round(Math.abs(diffPct));
+
+  // Round to zero reads as "in line with", not a misleading "0% below"
+  if (rounded === 0) {
+    return (
+      <p className="text-[12px] mt-1" style={{ color: "var(--text-muted)" }}>
+        In line with {area.district}&rsquo;s average of {fmtGBP(area.avgPrice)}
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-[12px] mt-1" style={{ color: isBelow ? "var(--primary)" : "var(--color-gold)" }}>
+      {rounded}% {isBelow ? "below" : "above"} {area.district}&rsquo;s average of {fmtGBP(area.avgPrice)}
+    </p>
+  );
 }
 
 export function WatchlistCard({ item }: { item: WatchlistItem }) {
@@ -33,6 +67,7 @@ export function WatchlistCard({ item }: { item: WatchlistItem }) {
             {item.postcode}{item.city ? ` · ${item.city}` : ""}
             {item.price !== null ? ` · ${fmtGBP(item.price)}` : ""}
           </p>
+          <AreaPriceContext item={item} />
         </div>
         <form action={removeWatchlistAction} className="shrink-0">
           <input type="hidden" name="id" value={item.id} />

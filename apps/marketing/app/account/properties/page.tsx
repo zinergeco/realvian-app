@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/public-auth";
 import { listWatchlist } from "@/lib/property-watchlist";
 import { groupByStatus, WATCHLIST_STATUSES, STATUS_LABELS } from "@/lib/watchlist-constants";
+import { getAreaByOutcode } from "@/lib/areas";
 import { Card, SectionLabel } from "@/components/ui";
 import { AddWatchlistForm } from "./add-watchlist-form";
 import { WatchlistCard } from "./watchlist-card";
@@ -52,6 +53,27 @@ export default async function PropertyWatchlistPage() {
                 {STATUS_LABELS[status]}
               </span>
             ));
+          })()}
+          {(() => {
+            // Same comparison as each card shows individually, rolled
+            // up into one summary stat - only counts items that have
+            // both a real price and a resolvable area, same silent
+            // skip for anything else as the per-card version.
+            const belowCount = items.filter((item) => {
+              if (item.price === null || !item.outcode) return false;
+              const area = getAreaByOutcode(item.outcode);
+              return area ? item.price < area.avgPrice : false;
+            }).length;
+            const withComparison = items.filter(
+              (item) => item.price !== null && item.outcode && getAreaByOutcode(item.outcode),
+            ).length;
+            if (withComparison === 0) return null;
+            return (
+              <span className="text-[13px] text-[var(--text-secondary)]">
+                <strong className="text-[var(--primary)] tnum">{belowCount}</strong> of{" "}
+                <strong className="text-[var(--text-primary)] tnum">{withComparison}</strong> priced below area average
+              </span>
+            );
           })()}
         </div>
       )}
