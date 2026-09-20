@@ -5,6 +5,7 @@ import { Badge, Card, cx } from "@/components/ui";
 import { AmortizationChart } from "@/components/amortization-chart";
 import { SdltBandChart } from "@/components/sdlt-band-chart";
 import { BreakdownChart } from "@/components/breakdown-chart";
+import { CalculatorPdfExport } from "@/components/calculator-pdf-export";
 import {
   calculateMortgage,
   calculateAmortizationSchedule,
@@ -160,9 +161,29 @@ function MortgageCalculator() {
         />
       </Card>
       <Card className="p-6">
-        <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
-          Estimate
-        </h3>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase" style={{ color: "var(--primary)" }}>
+            Estimate
+          </h3>
+          <CalculatorPdfExport
+            title="Mortgage Affordability"
+            filenameSlug="mortgage"
+            inputs={[
+              { label: "Annual income", value: fmtGBP(income) },
+              { label: "Deposit", value: fmtGBP(deposit) },
+              { label: "Interest rate", value: `${rate}%` },
+              { label: "Mortgage term", value: `${term} years` },
+              { label: "Income multiplier", value: `${multiplier}\u00d7` },
+            ]}
+            results={[
+              { label: "Estimated maximum loan", value: fmtGBP(result.maxLoan) },
+              { label: "Estimated maximum property price", value: fmtGBP(result.maxPropertyPrice), emphasis: true },
+              { label: "Estimated monthly payment", value: fmtGBP(result.monthlyPayment) },
+              { label: "Total interest over term", value: fmtGBP(result.totalInterest) },
+            ]}
+            disclaimer="This is a planning estimate, not a mortgage offer or advice. Get a decision in principle from a broker or lender for a figure you can actually rely on."
+          />
+        </div>
         <ResultRow label="Estimated maximum loan" value={fmtGBP(result.maxLoan)} />
         <ResultRow label="Estimated maximum property price" value={fmtGBP(result.maxPropertyPrice)} emphasis />
         <ResultRow label="Estimated monthly payment" value={fmtGBP(result.monthlyPayment)} />
@@ -217,9 +238,30 @@ function StampDutyCalculator() {
         </p>
       </Card>
       <Card className="p-6">
-        <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
-          Breakdown
-        </h3>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase" style={{ color: "var(--primary)" }}>
+            Breakdown
+          </h3>
+          {result.bands.length > 0 && (
+            <CalculatorPdfExport
+              title="Stamp Duty Land Tax"
+              filenameSlug="stamp-duty"
+              inputs={[
+                { label: "Purchase price", value: fmtGBP(price) },
+                { label: "Buyer type", value: buyerType === "first-time" ? "First-time buyer" : buyerType === "additional" ? "Additional property" : "Standard" },
+              ]}
+              results={[
+                ...result.bands.map((b) => ({
+                  label: `${fmtGBP(b.from)} \u2013 ${b.to ? fmtGBP(b.to) : "above"} @ ${(b.rate * 100).toFixed(0)}%`,
+                  value: fmtGBP(b.tax),
+                })),
+                { label: "Total Stamp Duty", value: fmtGBP(result.totalTax), emphasis: true },
+                { label: "Effective rate", value: `${(result.effectiveRate * 100).toFixed(2)}%` },
+              ]}
+              disclaimer="Informational estimate, not a tax return. Confirm the exact figure with your solicitor or HMRC's own calculator before completion. England & Northern Ireland only."
+            />
+          )}
+        </div>
         {result.bands.length === 0 ? (
           <p className="text-[13.5px] text-[var(--text-muted)]">Enter a purchase price.</p>
         ) : (
@@ -283,9 +325,27 @@ function YieldCalculator() {
         />
       </Card>
       <Card className="p-6">
-        <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
-          Yield
-        </h3>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase" style={{ color: "var(--primary)" }}>
+            Yield
+          </h3>
+          <CalculatorPdfExport
+            title="Rental Yield"
+            filenameSlug="yield"
+            inputs={[
+              { label: "Purchase price", value: fmtGBP(price) },
+              { label: "Monthly rent", value: fmtGBP(rent) },
+              { label: "Annual running costs", value: fmtGBP(costs) },
+            ]}
+            results={[
+              { label: "Annual rent", value: fmtGBP(result.annualRent) },
+              { label: "Gross yield", value: `${result.grossYieldPct.toFixed(2)}%` },
+              { label: "Annual net income", value: fmtGBP(result.annualNetIncome) },
+              { label: "Net yield", value: `${result.netYieldPct.toFixed(2)}%`, emphasis: true },
+            ]}
+            disclaimer="Net yield here excludes mortgage costs. Informational estimate, not investment advice — verify independently before making a purchase decision."
+          />
+        </div>
         <ResultRow label="Annual rent" value={fmtGBP(result.annualRent)} />
         <ResultRow label="Gross yield" value={`${result.grossYieldPct.toFixed(2)}%`} />
         <ResultRow label="Annual net income" value={fmtGBP(result.annualNetIncome)} />
@@ -344,9 +404,30 @@ function RoiCalculator() {
         <NumberField label="Annual running costs" value={runningCosts} onChange={setRunningCosts} prefix="£" step={100} />
       </Card>
       <Card className="p-6">
-        <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase mb-4" style={{ color: "var(--primary)" }}>
-          Cash-on-cash return
-        </h3>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h3 className="text-[13px] font-semibold tracking-[0.06em] uppercase" style={{ color: "var(--primary)" }}>
+            Cash-on-cash return
+          </h3>
+          <CalculatorPdfExport
+            title="Return on Investment"
+            filenameSlug="roi"
+            inputs={[
+              { label: "Purchase price", value: fmtGBP(price) },
+              { label: "Deposit", value: fmtGBP(deposit) },
+              { label: "Stamp duty + other costs", value: fmtGBP(extraCosts) },
+              { label: "Mortgage interest rate", value: `${rate}%` },
+              { label: "Monthly rent", value: fmtGBP(rent) },
+              { label: "Annual running costs", value: fmtGBP(runningCosts) },
+            ]}
+            results={[
+              { label: "Cash invested", value: fmtGBP(result.cashInvested) },
+              { label: "Annual mortgage interest", value: fmtGBP(result.annualMortgageInterest) },
+              { label: "Annual net cash flow", value: fmtGBP(result.annualNetCashFlow) },
+              { label: "Cash-on-cash return", value: `${result.cashOnCashReturnPct.toFixed(2)}%`, emphasis: true },
+            ]}
+            disclaimer="Assumes an interest-only mortgage. Doesn't include capital appreciation or void periods. Informational estimate, not investment advice."
+          />
+        </div>
         <ResultRow label="Cash invested" value={fmtGBP(result.cashInvested)} />
         <ResultRow label="Annual mortgage interest" value={fmtGBP(result.annualMortgageInterest)} />
         <ResultRow label="Annual net cash flow" value={fmtGBP(result.annualNetCashFlow)} />
